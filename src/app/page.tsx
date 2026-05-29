@@ -555,47 +555,47 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="w-full border border-[#c1c2d6] bg-white overflow-hidden shadow-sm flex flex-col md:flex-row min-h-[400px]">
+            <div className="w-full border border-[#c1c2d6] bg-white overflow-hidden shadow-sm flex flex-col md:flex-row min-h-[400px] rounded-2xl">
               
               {/* Left Side: Code Editor */}
-              <div className="md:w-3/5 p-4 flex flex-col border-r border-[#c1c2d6] bg-gray-50">
+              <div className="md:w-3/5 p-5 flex flex-col border-r border-[#c1c2d6] bg-gray-50">
                 <div className="flex items-center justify-between border-b border-[#c1c2d6]/50 pb-2 mb-3">
-                  <span className="font-bold text-[12px] text-gray-500">PROBLEM: Single element in sorted array</span>
-                  <span className="text-[10px] uppercase font-bold text-green-600 bg-green-50 px-2 py-0.5 border border-green-200">JS / node.js</span>
+                  <span className="font-bold text-[12px] text-gray-500 font-satoshi">PROBLEM: Single element in sorted array</span>
+                  <span className="text-[10px] uppercase font-bold text-green-600 bg-green-50 px-2 py-0.5 border border-green-200 font-mono">JS / node.js</span>
                 </div>
                 <textarea
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  className="flex-1 w-full font-mono text-[12px] p-3 border border-[#c1c2d6] bg-[#121418] text-[#39FF14] focus:outline-none resize-none leading-relaxed min-h-[250px]"
+                  className="flex-1 w-full font-mono text-[12px] p-4 border border-[#c1c2d6]/70 bg-[#0f141c] text-[#e1e4e8] focus:outline-none resize-none leading-relaxed min-h-[250px] rounded-lg shadow-inner focus:border-[#121418] focus:ring-1 focus:ring-[#121418]"
                 />
                 <button
                   onClick={runCodeSimulation}
                   disabled={isCompiling}
-                  className="button mt-3 font-satoshi font-bold py-3 bg-[#121418] hover:bg-black text-white text-[12px] rounded border-none cursor-pointer uppercase tracking-wider"
+                  className="button mt-3 font-satoshi font-bold py-3 bg-[#121418] hover:bg-black text-white text-[12px] rounded-lg border-none cursor-pointer uppercase tracking-wider transition-all"
                 >
                   {isCompiling ? "Compiling..." : "Compile & Run"}
                 </button>
               </div>
 
               {/* Right Side: Simulated Terminal output */}
-              <div className="md:w-2/5 p-4 bg-[#050505] text-white flex flex-col justify-between font-mono text-[12px]">
+              <div className="md:w-2/5 p-5 bg-[#0c1015] text-[#c9d1d9] flex flex-col justify-between font-mono text-[12px]">
                 <div>
                   <div className="border-b border-gray-800 pb-2 mb-3 text-gray-500 font-bold text-[10px] uppercase">
                     Execution Log Output
                   </div>
                   <div className="flex flex-col gap-2 min-h-[200px]">
                     {terminalOutput.length === 0 ? (
-                      <span className="text-gray-600 italic">Click &quot;Compile &amp; Run&quot; to test your algorithmic solution...</span>
+                      <span className="text-gray-500 italic">Click &quot;Compile &amp; Run&quot; to test your algorithmic solution...</span>
                     ) : (
                       terminalOutput.map((line, idx) => (
                         <div
                           key={idx}
                           className={`${
                             line.includes("PASS")
-                              ? "text-green-400"
+                              ? "text-[#34d399] font-semibold"
                               : line.includes("SCORE")
-                              ? "text-yellow-400 font-bold animate-bounce"
-                              : "text-gray-300"
+                              ? "text-[#fbbf24] font-semibold"
+                              : "text-gray-400"
                           }`}
                         >
                           {line}
@@ -624,7 +624,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="w-full border border-[#c1c2d6] bg-white overflow-hidden shadow-sm font-satoshi text-[13px]">
+            <div className="w-full border border-[#c1c2d6] bg-white overflow-hidden shadow-sm font-satoshi text-[13px] rounded-2xl">
+
               <div className="grid grid-cols-12 font-bold bg-[#f8f9fa] border-b border-[#c1c2d6] py-3.5 px-4 text-gray-500 text-[11px] tracking-wider uppercase text-center">
                 <div className="col-span-4 text-left">Data Structure</div>
                 <div className="col-span-2">Access</div>
@@ -662,7 +663,8 @@ export default function Home() {
           <div className="section__stack">
             <h2 className="section__title font-newsreader italic text-[42px]">High Score Leaderboard</h2>
 
-            <div className="w-full max-w-[900px] mx-auto border border-[#c1c2d6] bg-white overflow-hidden shadow-sm">
+            <div className="w-full max-w-[900px] mx-auto border border-[#c1c2d6] bg-white overflow-hidden shadow-sm rounded-2xl">
+
               {leaderboardLoading ? (
                 <div className="py-10 text-center text-gray-500 font-satoshi text-[14px]">
                   Syncing scores...
@@ -755,33 +757,34 @@ export default function Home() {
             </div>
 
             {/* Tab content */}
-            <div className="w-full border border-[#c1c2d6] bg-white p-4 shadow-sm rounded">
+            <div className="w-full border border-[#c1c2d6] bg-white p-5 shadow-sm rounded-2xl">
+
               {cheatTab === "cpp" && (
                 <div className="flex flex-col gap-3 font-satoshi text-left">
                   <h3 className="font-bold text-[16px] text-[#121418]">C++ STL Template Boilerplate</h3>
                   <p className="text-[13px] text-gray-600 leading-relaxed">
                     Optimal fast-input templates configured for strict time limits during HackerRank algorithm tournaments.
                   </p>
-                  <pre className="bg-[#121418] text-[#39FF14] p-4 rounded font-mono text-[12px] leading-relaxed overflow-x-auto">
-{`#include <bits/stdc++.h>
-using namespace std;
-
-#define FAST_IO ios_base::sync_with_stdio(false); cin.tie(NULL);
-typedef long long ll;
-
-void solve() {
-    // Fast O(1) hashing / graph solution here
-    int n; cin >> n;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
-}
-
-int main() {
-    FAST_IO
-    int t; cin >> t;
-    while(t--) solve();
-    return 0;
-}`}
+                  <pre className="bg-[#0f141c] text-[#e1e4e8] p-4 rounded font-mono text-[12px] leading-relaxed overflow-x-auto border border-[#c1c2d6]">
+<span className="text-[#ff7b72]">#include</span> <span className="text-[#a5d6ff]">&lt;bits/stdc++.h&gt;</span>{"\n"}
+<span className="text-[#ff7b72]">using namespace</span> <span className="text-[#79c0ff]">std</span>;{"\n"}
+{"\n"}
+<span className="text-[#ff7b72]">#define</span> <span className="text-[#d2a8ff]">FAST_IO</span> <span className="text-[#a5d6ff]">ios_base::sync_with_stdio(false); cin.tie(NULL);</span>{"\n"}
+<span className="text-[#ff7b72]">typedef long long</span> <span className="text-[#79c0ff]">ll</span>;{"\n"}
+{"\n"}
+<span className="text-[#ff7b72]">void</span> <span className="text-[#d2a8ff]">solve</span>() {"{"}{"\n"}
+<span className="text-[#8b949e]">    // Fast O(1) hashing / graph solution here</span>{"\n"}
+<span className="text-[#ff7b72]">    int</span> n; cin &gt;&gt; n;{"\n"}
+{"    "}vector&lt;<span className="text-[#ff7b72]">int</span>&gt; a(n);{"\n"}
+<span className="text-[#ff7b72]">    for</span>(<span className="text-[#ff7b72]">int</span> &amp;x : a) cin &gt;&gt; x;{"\n"}
+{"}"}{"\n"}
+{"\n"}
+<span className="text-[#ff7b72]">int</span> <span className="text-[#d2a8ff]">main</span>() {"{"}{"\n"}
+{"    "}<span className="text-[#d2a8ff]">FAST_IO</span>{"\n"}
+<span className="text-[#ff7b72]">    int</span> t; cin &gt;&gt; t;{"\n"}
+<span className="text-[#ff7b72]">    while</span>(t--) solve();{"\n"}
+<span className="text-[#ff7b72]">    return</span> <span className="text-[#79c0ff]">0</span>;{"\n"}
+{"}"}
                   </pre>
                 </div>
               )}
@@ -792,18 +795,18 @@ int main() {
                   <p className="text-[13px] text-gray-600 leading-relaxed">
                     Modern Drizzle ORM table specifications connecting relational Postgres models with uuid keys and cascades.
                   </p>
-                  <pre className="bg-[#121418] text-[#39FF14] p-4 rounded font-mono text-[12px] leading-relaxed overflow-x-auto">
-{`import { pgTable, uuid, text, relations } from "drizzle-orm/pg-core";
-
-export const members = pgTable("members", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-});
-
-export const membersRelations = relations(members, ({ many }) => ({
-  rsvps: many(rsvps),
-}));`}
+                  <pre className="bg-[#0f141c] text-[#e1e4e8] p-4 rounded font-mono text-[12px] leading-relaxed overflow-x-auto border border-[#c1c2d6]">
+<span className="text-[#ff7b72]">import</span> {"{ pgTable, uuid, text, relations }"} <span className="text-[#ff7b72]">from</span> <span className="text-[#a5d6ff]">&quot;drizzle-orm/pg-core&quot;</span>;{"\n"}
+{"\n"}
+<span className="text-[#ff7b72]">export const</span> <span className="text-[#79c0ff]">members</span> = pgTable(<span className="text-[#a5d6ff]">&quot;members&quot;</span>, {"{"}{"\n"}
+{"  "}id: uuid(<span className="text-[#a5d6ff]">&quot;id&quot;</span>).primaryKey().defaultRandom(),{"\n"}
+{"  "}name: text(<span className="text-[#a5d6ff]">&quot;name&quot;</span>).notNull(),{"\n"}
+{"  "}email: text(<span className="text-[#a5d6ff]">&quot;email&quot;</span>).notNull().unique(),{"\n"}
+{"}"});{"\n"}
+{"\n"}
+<span className="text-[#ff7b72]">export const</span> <span className="text-[#79c0ff]">membersRelations</span> = relations(members, ({"{ many }"}) =&gt; ({"{"}{"\n"}
+{"  "}rsvps: many(rsvps),{"\n"}
+{"}"}));
                   </pre>
                 </div>
               )}
