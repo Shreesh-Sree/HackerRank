@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FAQSection from "@/components/FAQSection";
 import ScrollRevealText from "@/components/ScrollRevealText";
+import PixelHand from "@/components/assets/PixelHand";
+import CircuitBrain from "@/components/assets/CircuitBrain";
 
 // Zod Validation Schemas
 const joinFormSchema = z.object({
@@ -45,38 +47,45 @@ export default function Home() {
 
   const runCodeSimulation = () => {
     setIsCompiling(true);
-    setTerminalOutput(["> Initializing node compiler...", "> Loading runtime libraries..."]);
+    setTerminalOutput([
+      "> Initializing quantum cognitive compiler...",
+      "> Calibrating space-time dilation vectors...",
+      "> Loading surrealist logic matrices (Dalí Engine v0.9)..."
+    ]);
 
     setTimeout(() => {
-      setTerminalOutput((prev) => [...prev, "> Compiling solution... SUCCESS."]);
+      setTerminalOutput((prev) => [...prev, "> Compiling single-element anomaly detector... INCOHERENCY CHECK: OK."]);
     }, 600);
 
     setTimeout(() => {
       setTerminalOutput((prev) => [
         ...prev,
-        "> Running Test Case 1: nums = [1,1,2,3,3,4,4]...",
-        "  Expected: 2, Got: 2 -> PASS ✅",
+        "> Running Test Case 1: nums = [1,1,2,3,3,4,4] (Isolated anomaly)...",
+        "  Index 2 isolated. Anomaly identified: 2.",
+        "  Reality Coherence: 100% -> PASS ✅",
       ]);
     }, 1200);
 
     setTimeout(() => {
       setTerminalOutput((prev) => [
         ...prev,
-        "> Running Test Case 2: nums = [3,3,7,7,10,11,11]...",
-        "  Expected: 10, Got: 10 -> PASS ✅",
+        "> Running Test Case 2: nums = [3,3,7,7,10,11,11] (Folded dimension check)...",
+        "  Index 4 isolated. Anomaly identified: 10.",
+        "  Temporal Alignment: Stable -> PASS ✅",
       ]);
     }, 1800);
 
     setTimeout(() => {
       setTerminalOutput((prev) => [
         ...prev,
-        "> -----------------------------------------",
-        "> STATUS: 2/2 Test Cases Passed.",
-        "> SCORE SECURED: +100 Quest Points! 🏆",
+        "> ----------------------------------------------------",
+        "> STATUS: Reality Stabilized. 2/2 anomalies solved.",
+        "> SCORE SECURED: +100 Quest Points (Level UP!) 🏆",
       ]);
       setIsCompiling(false);
     }, 2400);
   };
+
 
   // TanStack Queries
   const { data: eventsList = [], isLoading: eventsLoading } = useQuery({
@@ -206,13 +215,8 @@ export default function Home() {
           </div>
           <div className="hero__overlay" aria-hidden="true"></div>
           <div className="hero__content">
-            <div className="brand-logo reveal" style={{ "--delay": "0.05s" } as React.CSSProperties}>
-              <img
-                src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
-                alt="HackerRank"
-                decoding="async"
-                fetchPriority="high"
-              />
+            <div className="reveal flex justify-center mb-[-20px] scale-80 md:scale-95 select-none pointer-events-none" style={{ "--delay": "0.05s" } as React.CSSProperties}>
+              <PixelHand />
             </div>
 
             <div className="hero__copy">
@@ -279,6 +283,9 @@ export default function Home() {
               text="Code beyond reality."
               className="story__accent justify-center text-center font-newsreader italic text-[#4d4d4d]"
             />
+            <div className="flex justify-center mt-6 scale-90 md:scale-100 select-none pointer-events-none" aria-hidden="true">
+              <CircuitBrain />
+            </div>
           </div>
         </section>
 
