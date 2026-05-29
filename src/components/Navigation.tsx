@@ -50,7 +50,7 @@ export default function Navigation() {
             className="brand-logo topnav__logo-inner"
             href="#"
             onClick={handleLogoClick}
-            aria-label="HackerRank — back to top"
+            aria-label="HRCC SJGI — back to top"
             style={{ cursor: "pointer" }}
           >
             <img
@@ -63,10 +63,10 @@ export default function Navigation() {
         </div>
         <a
           className="topnav__link"
-          href="#how-this-works-heading"
-          onClick={(e) => handleLinkClick(e, "#how-this-works-heading")}
+          href="#pillars-heading"
+          onClick={(e) => handleLinkClick(e, "#pillars-heading")}
         >
-          How This Works
+          Pillars
         </a>
         <a
           className="topnav__link"
@@ -77,10 +77,24 @@ export default function Navigation() {
         </a>
         <a
           className="topnav__link"
-          href="#rewards-heading"
-          onClick={(e) => handleLinkClick(e, "#rewards-heading")}
+          href="#quests-heading"
+          onClick={(e) => handleLinkClick(e, "#quests-heading")}
         >
-          Rewards
+          Quests
+        </a>
+        <a
+          className="topnav__link"
+          href="#leaderboard-heading"
+          onClick={(e) => handleLinkClick(e, "#leaderboard-heading")}
+        >
+          Leaderboard
+        </a>
+        <a
+          className="topnav__link"
+          href="#team-heading"
+          onClick={(e) => handleLinkClick(e, "#team-heading")}
+        >
+          Architects
         </a>
         <a
           className="topnav__link"
@@ -104,7 +118,7 @@ export default function Navigation() {
             className="mobile-topnav__logo brand-logo"
             href="#"
             onClick={handleLogoClick}
-            aria-label="HackerRank — back to top"
+            aria-label="HRCC SJGI — back to top"
           >
             <img
               src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
@@ -162,10 +176,10 @@ export default function Navigation() {
         >
           <a
             className="mobile-topnav__link"
-            href="#how-this-works-heading"
-            onClick={(e) => handleLinkClick(e, "#how-this-works-heading")}
+            href="#pillars-heading"
+            onClick={(e) => handleLinkClick(e, "#pillars-heading")}
           >
-            How This Works
+            Pillars
           </a>
           <a
             className="mobile-topnav__link"
@@ -176,10 +190,24 @@ export default function Navigation() {
           </a>
           <a
             className="mobile-topnav__link"
-            href="#rewards-heading"
-            onClick={(e) => handleLinkClick(e, "#rewards-heading")}
+            href="#quests-heading"
+            onClick={(e) => handleLinkClick(e, "#quests-heading")}
           >
-            Rewards
+            Quests
+          </a>
+          <a
+            className="mobile-topnav__link"
+            href="#leaderboard-heading"
+            onClick={(e) => handleLinkClick(e, "#leaderboard-heading")}
+          >
+            Leaderboard
+          </a>
+          <a
+            className="mobile-topnav__link"
+            href="#team-heading"
+            onClick={(e) => handleLinkClick(e, "#team-heading")}
+          >
+            Architects
           </a>
           <a
             className="mobile-topnav__link"

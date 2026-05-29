@@ -1,14 +1,157 @@
-import Navigation from "@/components/Navigation";
+"use client";
+
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import FAQSection from "@/components/FAQSection";
 import ScrollRevealText from "@/components/ScrollRevealText";
 
+// Zod Validation Schemas
+const joinFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email format"),
+  rollNumber: z.string().min(3, "Roll number is too short"),
+  department: z.string().min(2, "Invalid department"),
+  year: z.number().int().min(1).max(4),
+  hackerrankUsername: z.string().min(2, "Invalid username"),
+  whyJoin: z.string().min(10, "Minimum 10 characters required"),
+});
+
+const rsvpFormSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  email: z.string().email("Invalid email format"),
+});
+
+type JoinFormValues = z.infer<typeof joinFormSchema>;
+type RsvpFormValues = z.infer<typeof rsvpFormSchema>;
+
 export default function Home() {
+  const queryClient = useQueryClient();
+
+  // Modal / RSVP states
+  const [activeRsvpEvent, setActiveRsvpEvent] = useState<{ id: string; title: string } | null>(null);
+  const [rsvpSuccess, setRsvpSuccess] = useState(false);
+  const [rsvpError, setRsvpError] = useState("");
+
+  // TanStack Queries
+  const { data: eventsList = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ["events"],
+    queryFn: async () => {
+      const res = await fetch("/api/events");
+      if (!res.ok) throw new Error("Failed to fetch events");
+      return res.json();
+    },
+  });
+
+  const { data: leaderboardList = [], isLoading: leaderboardLoading } = useQuery({
+    queryKey: ["leaderboard"],
+    queryFn: async () => {
+      const res = await fetch("/api/leaderboard");
+      if (!res.ok) throw new Error("Failed to fetch leaderboard");
+      return res.json();
+    },
+  });
+
+  // TanStack Mutations
+  const joinMutation = useMutation({
+    mutationFn: async (data: JoinFormValues) => {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to join crew");
+      }
+      return res.json();
+    },
+  });
+
+  const rsvpMutation = useMutation({
+    mutationFn: async (data: RsvpFormValues & { eventId: string }) => {
+      const res = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to submit RSVP");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setRsvpSuccess(true);
+      setRsvpError("");
+      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+    },
+    onError: (err) => {
+      setRsvpError(err.message || "Failed to submit RSVP");
+      setRsvpSuccess(false);
+    },
+  });
+
+  // React Hook Forms
+  const {
+    register: registerJoin,
+    handleSubmit: handleJoinSubmit,
+    formState: { errors: joinErrors },
+    reset: resetJoinForm,
+  } = useForm<JoinFormValues>({
+    resolver: zodResolver(joinFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      rollNumber: "",
+      department: "",
+      year: 1,
+      hackerrankUsername: "",
+      whyJoin: "",
+    },
+  });
+
+  const {
+    register: registerRsvp,
+    handleSubmit: handleRsvpSubmit,
+    reset: resetRsvpForm,
+    formState: { errors: rsvpErrors },
+  } = useForm<RsvpFormValues>({
+    resolver: zodResolver(rsvpFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+  });
+
+  const handleJoinCrew = (data: JoinFormValues) => {
+    joinMutation.mutate(data);
+  };
+
+  const handleRsvpSubmitWrapper = (data: RsvpFormValues) => {
+    if (activeRsvpEvent) {
+      rsvpMutation.mutate({
+        ...data,
+        eventId: activeRsvpEvent.id,
+      });
+    }
+  };
+
+  const handleRegisterClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const targetElement = document.querySelector("#join-crew-section");
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <>
-      <Navigation />
-
       <main className="page">
-        {/* Hero Section */}
+        
+        {/* 1. HERO SECTION */}
         <section className="hero" aria-label="Hero">
           <div className="hero__media" aria-hidden="true">
             <video autoPlay muted loop playsInline preload="auto">
@@ -20,6 +163,7 @@ export default function Home() {
           </div>
           <div className="hero__overlay" aria-hidden="true"></div>
           <div className="hero__content">
+            {/* Cloned logo badge */}
             <div className="brand-logo reveal" style={{ "--delay": "0.05s" } as React.CSSProperties}>
               <img
                 src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
@@ -30,49 +174,43 @@ export default function Home() {
             </div>
 
             <div className="hero__copy">
+              {/* Cloned title stagger letters reveal - HRCC SJGI */}
               <h1
                 className="hero__title hero-stagger hero-stagger--letters"
                 style={{ "--base-delay": "0.1s" } as React.CSSProperties}
               >
-                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>O</span>
-                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>r</span>
-                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>c</span>
-                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>h</span>
-                <span className="hero-stagger__item" style={{ "--index": 4 } as React.CSSProperties}>e</span>
-                <span className="hero-stagger__item" style={{ "--index": 5 } as React.CSSProperties}>s</span>
-                <span className="hero-stagger__item" style={{ "--index": 6 } as React.CSSProperties}>t</span>
-                <span className="hero-stagger__item" style={{ "--index": 7 } as React.CSSProperties}>r</span>
-                <span className="hero-stagger__item" style={{ "--index": 8 } as React.CSSProperties}>a</span>
-                <span className="hero-stagger__item" style={{ "--index": 9 } as React.CSSProperties}>t</span>
-                <span className="hero-stagger__item" style={{ "--index": 10 } as React.CSSProperties}>e</span>
+                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>H</span>
+                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>R</span>
+                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>C</span>
+                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>C</span>
+                <span className="hero-stagger__item" style={{ "--index": 4 } as React.CSSProperties}>&nbsp;</span>
+                <span className="hero-stagger__item" style={{ "--index": 5 } as React.CSSProperties}>S</span>
+                <span className="hero-stagger__item" style={{ "--index": 6 } as React.CSSProperties}>J</span>
+                <span className="hero-stagger__item" style={{ "--index": 7 } as React.CSSProperties}>G</span>
+                <span className="hero-stagger__item" style={{ "--index": 8 } as React.CSSProperties}>I</span>
               </h1>
+              {/* Cloned subtitle words reveal - SJGI Campus Crew */}
               <p
-                className="hero__subtitle hero-stagger hero-stagger--words"
+                className="hero__subtitle hero-stagger hero-stagger--words font-satoshi uppercase tracking-wider"
                 style={{ "--base-delay": "0.16s" } as React.CSSProperties}
               >
-                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>A</span>
-                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>24-Hour</span>
-                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>Hackathon</span>
-                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>to</span>
-                <span className="hero-stagger__item" style={{ "--index": 4 } as React.CSSProperties}>Design,</span>
-                <span className="hero-stagger__item" style={{ "--index": 5 } as React.CSSProperties}>Build,</span>
-                <span className="hero-stagger__item" style={{ "--index": 6 } as React.CSSProperties}>and</span>
-                <span className="hero-stagger__item" style={{ "--index": 7 } as React.CSSProperties}>Ship</span>
-                <span className="hero-stagger__item" style={{ "--index": 8 } as React.CSSProperties}>an</span>
-                <span className="hero-stagger__item" style={{ "--index": 9 } as React.CSSProperties}>Agent</span>
+                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>St.</span>
+                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>Joseph&apos;s</span>
+                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>Group</span>
+                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>of</span>
+                <span className="hero-stagger__item" style={{ "--index": 4 } as React.CSSProperties}>Institutions</span>
               </p>
             </div>
 
             <div className="hero__cta reveal" style={{ "--delay": "0.22s" } as React.CSSProperties}>
-              <a
-                href="https://www.hackerrank.com/contests/hackerrank-orchestrate-may26/challenges/support-agent/leaderboard"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleRegisterClick}
+                className="button font-satoshi font-bold tracking-wider"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  padding: "12px 32px",
+                  padding: "14px 36px",
                   background: "#000000",
                   color: "#ffffff",
                   textDecoration: "none",
@@ -80,43 +218,42 @@ export default function Home() {
                   fontSize: "14px",
                   fontWeight: 700,
                   lineHeight: "24px",
+                  border: "none",
+                  cursor: "pointer",
                 }}
               >
-                View the Leaderboard
-              </a>
+                Join the Crew
+              </button>
             </div>
           </div>
         </section>
 
-        {/* Story Section */}
+        {/* 2. STORY SECTION */}
         <section className="story" aria-label="Introduction">
           <div className="story__inner w-full max-w-[917px] mx-auto flex flex-col items-center gap-6">
             <ScrollRevealText
-              text="The role of a developer has evolved. You're not just writing code, you're orchestrating agents to solve real problems. Anyone can prompt. Few can build systems that actually deliver."
+              text="The role of a developer has evolved. You're not just writing standard loops, you're orchestrating advanced logic systems and AI to solve real-world problems. We are the elite digital architects of St. Joseph's Group of Institutions."
               className="story__lead justify-center text-center font-satoshi"
             />
             <ScrollRevealText
-              text="This is your chance to prove you can."
-              className="story__accent justify-center text-center font-newsreader italic"
+              text="Code beyond reality."
+              className="story__accent justify-center text-center font-newsreader italic text-[#4d4d4d]"
             />
           </div>
         </section>
 
-        {/* Steps Section */}
-        <section className="section" id="how-this-works-heading" aria-labelledby="how-this-works-heading">
+        {/* 3. CORE PILLARS SECTION (How This Works) */}
+        <section className="section border-t border-[#c1c2d6]" id="pillars-heading" aria-labelledby="pillars-heading">
           <div className="section__stack">
-            <h2 className="section__title">
-              How This Works
+            <h2 className="section__title font-newsreader italic text-[42px]">
+              How the Crew Operates
             </h2>
 
             <div className="steps-panel desktop-only">
+              {/* Pillar 1 */}
               <article className="step">
                 <div className="step__media" aria-hidden="true">
                   <picture>
-                    <source
-                      media="(min-width: 1280px)"
-                      srcSet="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-11.svg"
-                    />
                     <img
                       src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-11.svg"
                       alt=""
@@ -126,30 +263,19 @@ export default function Home() {
                   </picture>
                 </div>
                 <div className="step__copy">
-                  <h3 className="step__title">Get the Challenge</h3>
-                  <p className="step__body">
-                    You&apos;ll receive your challenge and instructions at{" "}
-                    <time
-                      className="js-local-datetime"
-                      dateTime="2026-05-01T05:30:00Z"
-                    >
-                      11 AM IST on May 1
-                    </time>{" "}
-                    via email. Your task will be to build an agent that solves a
-                    real-world problem.
+                  <h3 className="step__title font-satoshi font-bold text-[18px]">Code Battles</h3>
+                  <p className="step__body font-satoshi text-gray-600 leading-relaxed text-[14px]">
+                    Challenge fellow programmers in our weekly algorithmic brackets. Solve graph theory and dynamic programming under strict time pressure.
                   </p>
                 </div>
               </article>
 
               <div className="steps-panel__divider" aria-hidden="true"></div>
 
+              {/* Pillar 2 */}
               <article className="step">
                 <div className="step__media" aria-hidden="true">
                   <picture>
-                    <source
-                      media="(min-width: 1280px)"
-                      srcSet="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-3.svg"
-                    />
                     <img
                       src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-3.svg"
                       alt=""
@@ -159,23 +285,19 @@ export default function Home() {
                   </picture>
                 </div>
                 <div className="step__copy">
-                  <h3 className="step__title">Build &amp; Submit</h3>
-                  <p className="step__body">
-                    Build your agent using the tools you prefer like Cursor,
-                    Claude Code, or Codex. Submit your solution when you&apos;re ready.
+                  <h3 className="step__title font-satoshi font-bold text-[18px]">Build Sprints</h3>
+                  <p className="step__body font-satoshi text-gray-600 leading-relaxed text-[14px]">
+                    Collaborate in intensive 24-hour sprint hackathons. Form guilds, design robust system architectures, and deploy production-level applications.
                   </p>
                 </div>
               </article>
 
               <div className="steps-panel__divider" aria-hidden="true"></div>
 
+              {/* Pillar 3 */}
               <article className="step">
                 <div className="step__media" aria-hidden="true">
                   <picture>
-                    <source
-                      media="(min-width: 1280px)"
-                      srcSet="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-8.svg"
-                    />
                     <img
                       src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-8.svg"
                       alt=""
@@ -185,19 +307,16 @@ export default function Home() {
                   </picture>
                 </div>
                 <div className="step__copy">
-                  <h3 className="step__title">Explain Your Approach</h3>
-                  <p className="step__body">
-                    Walk through your approach with an AI judge. Explain how your
-                    agent works and the decisions behind it.
+                  <h3 className="step__title font-satoshi font-bold text-[18px]">Career Sprints</h3>
+                  <p className="step__body font-satoshi text-gray-600 leading-relaxed text-[14px]">
+                    Prepare for elite tech roles with mock resume reviews, system design practice boards, and direct panels with seasoned alumni engineers.
                   </p>
                 </div>
               </article>
             </div>
 
-            <div
-              className="steps-stack mobile-only"
-              aria-label="How This Works Cards"
-            >
+            {/* Mobile Pillars list */}
+            <div className="steps-stack mobile-only" aria-label="Crew Pillars">
               <article className="step-card">
                 <div className="step-card__media" aria-hidden="true">
                   <img
@@ -208,17 +327,9 @@ export default function Home() {
                   />
                 </div>
                 <div className="step-card__copy">
-                  <h3 className="step-card__title">Get the Challenge</h3>
+                  <h3 className="step-card__title">Code Battles</h3>
                   <p className="step-card__body">
-                    You&apos;ll receive your challenge and instructions at{" "}
-                    <time
-                      className="js-local-datetime"
-                      dateTime="2026-05-01T05:30:00Z"
-                    >
-                      11 AM IST on May 1
-                    </time>{" "}
-                    via email. Your task will be to build an agent that solves a
-                    real-world problem.
+                    Challenge fellow programmers in our weekly algorithmic brackets. Solve graph theory and dynamic programming under strict time pressure.
                   </p>
                 </div>
               </article>
@@ -235,10 +346,9 @@ export default function Home() {
                   />
                 </div>
                 <div className="step-card__copy">
-                  <h3 className="step-card__title">Build &amp; Submit</h3>
+                  <h3 className="step-card__title">Build Sprints</h3>
                   <p className="step-card__body">
-                    Build your agent using the tools you prefer like Cursor,
-                    Claude Code, or Codex. Submit your solution when you&apos;re ready.
+                    Collaborate in intensive 24-hour sprint hackathons. Form guilds, design robust system architectures, and deploy production-level applications.
                   </p>
                 </div>
               </article>
@@ -255,10 +365,9 @@ export default function Home() {
                   />
                 </div>
                 <div className="step-card__copy">
-                  <h3 className="step-card__title">Explain Your Approach</h3>
+                  <h3 className="step-card__title">Career Sprints</h3>
                   <p className="step-card__body">
-                    Walk through your approach with an AI judge. Explain how your
-                    agent works and the decisions behind it.
+                    Prepare for elite tech roles with mock resume reviews, system design practice boards, and direct panels with seasoned alumni engineers.
                   </p>
                 </div>
               </article>
@@ -266,711 +375,490 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Timeline Section */}
-        <section className="section" id="timeline-heading" aria-labelledby="timeline-heading">
+        {/* 4. TIMELINE SECTION */}
+        <section className="section border-t border-[#c1c2d6]" id="timeline-heading" aria-labelledby="timeline-heading">
           <div className="section__stack">
-            <h2 className="section__title">Timeline</h2>
+            <h2 className="section__title font-newsreader italic text-[42px]">Active Guild Timeline</h2>
 
             <div className="timeline-panel desktop-only">
               <article className="timeline-panel__item">
-                <p className="timeline-panel__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-04-30T14:30:00Z"
-                  >
-                    Apr 30, 2026, 8 PM IST
-                  </time>
-                </p>
-                <p className="timeline-panel__label">Registration Closes</p>
+                <p className="timeline-panel__date">PHASE 01</p>
+                <p className="timeline-panel__label font-bold">Crew Registrations</p>
               </article>
               <div className="timeline-panel__divider" aria-hidden="true"></div>
               <article className="timeline-panel__item">
-                <p className="timeline-panel__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-05-01T05:30:00Z"
-                  >
-                    May 1, 2026, 11 AM IST
-                  </time>
-                </p>
-                <p className="timeline-panel__label">Challenge Begins</p>
+                <p className="timeline-panel__date">PHASE 02</p>
+                <p className="timeline-panel__label font-bold">Guild Orientation</p>
               </article>
               <div className="timeline-panel__divider" aria-hidden="true"></div>
               <article className="timeline-panel__item">
-                <p className="timeline-panel__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-05-02T05:30:00Z"
-                  >
-                    May 2, 2026, 11 AM IST
-                  </time>
-                </p>
-                <p className="timeline-panel__label">Challenge Ends</p>
+                <p className="timeline-panel__date">PHASE 03</p>
+                <p className="timeline-panel__label font-bold">Weekly Quests</p>
               </article>
               <div className="timeline-panel__divider" aria-hidden="true"></div>
               <article className="timeline-panel__item">
-                <p className="timeline-panel__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-05-15T06:30:00Z"
-                  >
-                    May 15, 2026, 12 PM IST
-                  </time>
-                </p>
-                <p className="timeline-panel__label">Results Announced</p>
+                <p className="timeline-panel__date">PHASE 04</p>
+                <p className="timeline-panel__label font-bold">Surreal Hackathon</p>
               </article>
             </div>
 
-            <div className="timeline-stack mobile-only" aria-label="Timeline">
+            <div className="timeline-stack mobile-only" aria-label="Roadmap">
               <article className="timeline-stack__item">
-                <p className="timeline-stack__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-04-30T14:30:00Z"
-                  >
-                    Apr 30, 2026, 8 PM IST
-                  </time>
-                </p>
-                <p className="timeline-stack__label">Registration Closes</p>
+                <p className="timeline-stack__date">PHASE 01</p>
+                <p className="timeline-stack__label">Crew Registrations</p>
               </article>
               <div className="timeline-stack__divider" aria-hidden="true"></div>
               <article className="timeline-stack__item">
-                <p className="timeline-stack__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-05-01T05:30:00Z"
-                  >
-                    May 1, 2026, 11 AM IST
-                  </time>
-                </p>
-                <p className="timeline-stack__label">Challenge Begins</p>
+                <p className="timeline-stack__date">PHASE 02</p>
+                <p className="timeline-stack__label">Guild Orientation</p>
               </article>
               <div className="timeline-stack__divider" aria-hidden="true"></div>
               <article className="timeline-stack__item">
-                <p className="timeline-stack__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-05-02T05:30:00Z"
-                  >
-                    May 2, 2026, 11 AM IST
-                  </time>
-                </p>
-                <p className="timeline-stack__label">Challenge Ends</p>
+                <p className="timeline-stack__date">PHASE 03</p>
+                <p className="timeline-stack__label">Weekly Quests</p>
               </article>
               <div className="timeline-stack__divider" aria-hidden="true"></div>
               <article className="timeline-stack__item">
-                <p className="timeline-stack__date">
-                  <time
-                    className="js-local-datetime"
-                    dateTime="2026-05-15T06:30:00Z"
-                  >
-                    May 15, 2026, 12 PM IST
-                  </time>
-                </p>
-                <p className="timeline-stack__label">Results Announced</p>
+                <p className="timeline-stack__date">PHASE 04</p>
+                <p className="timeline-stack__label">Surreal Hackathon</p>
               </article>
             </div>
           </div>
         </section>
 
-        {/* Rewards Section */}
-        <section className="section" id="rewards-heading" aria-labelledby="rewards-heading">
+        {/* 5. DYNAMIC QUESTS (EVENTS) SECTION — MAPPED TO REWARDS CARDS */}
+        <section className="section border-t border-[#c1c2d6]" id="quests-heading" aria-labelledby="quests-heading">
           <div className="section__stack">
-            <h2 className="section__title">Rewards</h2>
+            <h2 className="section__title font-newsreader italic text-[42px]">Upcoming Quests</h2>
 
-            {/* Desktop Rewards */}
-            <div className="rewards-desktop desktop-only">
-              <article className="reward-card reward-card--grand">
-                <div className="reward-card__hero" aria-hidden="true">
-                  <picture>
-                    <img
-                      src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-g.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </picture>
-                </div>
-
-                <div className="reward-card__content">
-                  <div className="reward-card__intro">
-                    <div className="reward-badge">
-                      <svg
-                        className="reward-badge__icon"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          cx="8"
-                          cy="5"
-                          r="3.4"
-                          stroke="#724E0F"
-                          strokeWidth="1.25"
-                        />
-                        <path
-                          d="M5.2 8.2V12.2L8 10.6L10.8 12.2V8.2"
-                          stroke="#724E0F"
-                          strokeWidth="1.25"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <span>Grand Prize!</span>
-                    </div>
-                    <h3 className="reward-card__title">1st Place</h3>
-                    <p className="reward-card__description">
-                      Everything you need to build. Recognition that opens doors.
-                    </p>
-                  </div>
-
-                  <div
-                    className="reward-feature-list"
-                    aria-label="First place rewards"
-                  >
-                    <div className="reward-feature reward-feature--wide">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "50px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-7.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">$1000+</div>
-                      <div className="reward-feature__body">
-                        in AI tools like Elevenlabs, Granola etc
-                      </div>
-                    </div>
-
-                    <div
-                      className="reward-feature-list__divider"
-                      aria-hidden="true"
-                    ></div>
-
-                    <div className="reward-feature">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "52px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-9.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">Opportunities</div>
-                      <div className="reward-feature__body">
-                        with leading tech companies
-                      </div>
-                    </div>
-
-                    <div
-                      className="reward-feature-list__divider"
-                      aria-hidden="true"
-                    ></div>
-
-                    <div className="reward-feature">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "75px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-6.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">Chat 1:1</div>
-                      <div className="reward-feature__body">
-                        with top industry experts
-                      </div>
-                    </div>
-
-                    <div
-                      className="reward-feature-list__divider"
-                      aria-hidden="true"
-                    ></div>
-
-                    <div className="reward-feature">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "46px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-5.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">HackerRank</div>
-                      <div className="reward-feature__body">
-                        exclusive<br />merch
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-
-              <div className="rewards-row">
-                <article className="reward-card reward-card--runner">
-                  <div className="reward-summary">
-                    <div
-                      className="reward-summary__media"
-                      style={{ width: "92px", height: "100px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-10.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="reward-summary__copy">
-                      <h3 className="reward-summary__title">2nd-5th Place</h3>
-                      <p className="reward-summary__body">
-                        Great ideas. Great rewards.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className="reward-feature-list"
-                    aria-label="2nd to 5th place rewards"
-                  >
-                    <div className="reward-feature">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "50px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-4.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">$150+</div>
-                      <div className="reward-feature__body">
-                        worth of granola credits
-                      </div>
-                    </div>
-
-                    <div
-                      className="reward-feature-list__divider"
-                      aria-hidden="true"
-                    ></div>
-
-                    <div className="reward-feature">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "52px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-2.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">Opportunities</div>
-                      <div className="reward-feature__body">
-                        with leading tech companies
-                      </div>
-                    </div>
-
-                    <div
-                      className="reward-feature-list__divider"
-                      aria-hidden="true"
-                    ></div>
-
-                    <div className="reward-feature">
-                      <div
-                        className="reward-feature__media"
-                        style={{ width: "46px", height: "56px" }}
-                        aria-hidden="true"
-                      >
-                        <img
-                          src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-1.svg"
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="reward-feature__title">HackerRank</div>
-                      <div className="reward-feature__body">
-                        exclusive<br />merch
-                      </div>
-                    </div>
-                  </div>
-                </article>
-
-                <article className="reward-card reward-card--participants">
-                  <div className="reward-summary">
-                    <div
-                      className="reward-summary__media"
-                      style={{ width: "98px", height: "100px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="reward-summary__copy">
-                      <h3 className="reward-summary__title">For All Participants</h3>
-                      <p className="reward-summary__body">
-                        Every participant wins something valuable
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="reward-ticket">
-                    <div className="reward-ticket__icon" aria-hidden="true">
-                      <img
-                        className="reward-ticket__shape"
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Subtract.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                      <img
-                        className="reward-ticket__mark"
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/image.png"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="reward-ticket__count">10</div>
-                    <div className="reward-ticket__text">
-                      HackerRank AI Mock Interview Credits
-                    </div>
-                  </div>
-                </article>
+            {eventsLoading ? (
+              <div className="py-10 text-center font-satoshi text-gray-500 text-[14px]">
+                Syncing crew quests timeline...
               </div>
-            </div>
+            ) : (
+              <div className="rewards-desktop w-full max-w-[1280px] mx-auto flex flex-col gap-8">
+                {eventsList.map((event: any, idx: number) => {
+                  const trophyImages = [
+                    "https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-g.png",
+                    "https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-s.png",
+                    "https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-b.png",
+                  ];
+                  const trophyImg = trophyImages[idx % 3];
+                  
+                  // Use the exact grand, runner, and participant styles from the clone
+                  const cardTypeClass = 
+                    idx === 0 
+                      ? "reward-card--grand" 
+                      : idx === 1 
+                        ? "reward-card--runner" 
+                        : "reward-card--participants";
 
-            {/* Mobile Rewards */}
-            <div className="rewards-mobile mobile-only">
-              <div className="rewards-mobile__block">
-                <div className="rewards-mobile__hero" aria-hidden="true">
-                  <img
-                    src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-g.png"
-                    alt=""
-                    loading="lazy"
-                  />
-                </div>
+                  return (
+                    <article key={event.id} className={`reward-card ${cardTypeClass} w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6`}>
+                      <div className="reward-card__hero md:w-1/3 flex items-center justify-center p-4">
+                        <picture>
+                          <img src={trophyImg} alt="" className="max-h-[140px] object-contain" />
+                        </picture>
+                      </div>
 
-                <div className="rewards-mobile__intro">
-                  <div className="reward-badge">
-                    <svg
-                      className="reward-badge__icon"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        cx="8"
-                        cy="5"
-                        r="3.4"
-                        stroke="#724E0F"
-                        strokeWidth="1.25"
-                      />
-                      <path
-                        d="M5.2 8.2V12.2L8 10.6L10.8 12.2V8.2"
-                        stroke="#724E0F"
-                        strokeWidth="1.25"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <span>Grand Prize!</span>
-                  </div>
-                  <h3 className="rewards-mobile__title">1st Place</h3>
-                  <p className="rewards-mobile__description">
-                    Everything you need to build. Recognition that opens doors.
-                  </p>
-                </div>
+                      <div className="reward-card__content md:w-2/3 flex flex-col justify-between p-4 gap-4">
+                        <div className="reward-card__intro flex flex-col gap-2">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] uppercase font-bold text-gray-500 border border-gray-400 px-2 py-0.5 rounded bg-gray-50">
+                              {event.type}
+                            </span>
+                            <span className="text-[12px] font-satoshi text-gray-500">
+                              Date: {new Date(event.date).toLocaleDateString()}
+                            </span>
+                          </div>
 
-                <div
-                  className="rewards-mobile__features rewards-mobile__features--four"
-                  aria-label="First place rewards"
-                >
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "50px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-7.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">$1000+</div>
-                    <div className="rewards-mobile__feature-body">
-                      in AI tools like Elevenlabs, Granola etc
-                    </div>
-                  </div>
+                          <h3 className="reward-card__title font-newsreader italic text-[28px] md:text-[34px] leading-tight text-[#121418] mt-1">
+                            {event.title}
+                          </h3>
 
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "52px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-9.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">Opportunities</div>
-                    <div className="rewards-mobile__feature-body">
-                      with leading tech companies
-                    </div>
-                  </div>
+                          <p className="reward-card__description font-satoshi text-[14px] text-gray-600 leading-relaxed mt-2">
+                            {event.description}
+                          </p>
 
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "75px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-6.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">Chat 1:1</div>
-                    <div className="rewards-mobile__feature-body">
-                      with top industry experts
-                    </div>
-                  </div>
+                          <div className="text-[12px] font-satoshi font-bold text-[#121418] mt-2">
+                            📍 Venue: {event.venue}
+                          </div>
+                        </div>
 
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "46px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-5.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">HackerRank</div>
-                    <div className="rewards-mobile__feature-body">
-                      exclusive<br />merch
-                    </div>
-                  </div>
-                </div>
+                        <button
+                          onClick={() => {
+                            setActiveRsvpEvent({ id: event.id, title: event.title });
+                            setRsvpSuccess(false);
+                            setRsvpError("");
+                            resetRsvpForm();
+                          }}
+                          className="button font-satoshi font-bold self-start mt-4 px-6 py-3 bg-[#121418] hover:bg-black text-white text-[12px] rounded border-none cursor-pointer"
+                        >
+                          RSVP Quest
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
+            )}
+          </div>
+        </section>
 
-              <div className="rewards-mobile__divider" aria-hidden="true"></div>
+        {/* 6. LEADERBOARD SECTION */}
+        <section className="section border-t border-[#c1c2d6]" id="leaderboard-heading" aria-labelledby="leaderboard-heading">
+          <div className="section__stack">
+            <h2 className="section__title font-newsreader italic text-[42px]">High Score Leaderboard</h2>
 
-              <div className="rewards-mobile__block">
-                <div
-                  className="rewards-mobile__summary-media"
-                  style={{ width: "92px", height: "100px" }}
-                  aria-hidden="true"
-                >
-                  <img
-                    src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-10.svg"
-                    alt=""
-                    loading="lazy"
-                  />
+            <div className="w-full max-w-[900px] mx-auto border border-[#c1c2d6] bg-white overflow-hidden shadow-sm">
+              {leaderboardLoading ? (
+                <div className="py-10 text-center text-gray-500 font-satoshi text-[14px]">
+                  Syncing scores...
                 </div>
-
-                <div className="rewards-mobile__intro">
-                  <h3 className="rewards-mobile__title">2nd-5th Place</h3>
-                  <p className="rewards-mobile__description">
-                    Great ideas. Great rewards.
-                  </p>
-                </div>
-
-                <div
-                  className="rewards-mobile__features rewards-mobile__features--three"
-                  aria-label="2nd to 5th place rewards"
-                >
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "50px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-4.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">$150+</div>
-                    <div className="rewards-mobile__feature-body">
-                      in AI tools like Elevenlabs, Granola etc
-                    </div>
+              ) : (
+                <div className="flex flex-col w-full text-[13px] font-satoshi">
+                  {/* Table header */}
+                  <div className="grid grid-cols-12 font-bold bg-[#f8f9fa] border-b border-[#c1c2d6] py-3.5 px-4 text-gray-500 text-[11px] tracking-wider uppercase">
+                    <div className="col-span-2">Rank</div>
+                    <div className="col-span-6">Member Username</div>
+                    <div className="col-span-2 text-center">Quests</div>
+                    <div className="col-span-2 text-right">Score</div>
                   </div>
 
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "52px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-2.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">Opportunities</div>
-                    <div className="rewards-mobile__feature-body">
-                      with leading tech companies
-                    </div>
-                  </div>
+                  {/* Table rows */}
+                  {leaderboardList.map((entry: any, index: number) => {
+                    const isTopRank = index === 0;
+                    return (
+                      <div
+                        key={entry.id}
+                        className={`grid grid-cols-12 items-center py-4 px-4 border-b border-[#c1c2d6]/50 last:border-0 hover:bg-[#f8f9fa] transition-colors ${
+                          isTopRank ? "bg-amber-50/20 font-bold" : ""
+                        }`}
+                      >
+                        <div className="col-span-2 text-[#121418] font-bold text-[14px] flex items-center gap-1">
+                          <span>#{index + 1}</span>
+                          {index === 0 && <span className="text-[14px]">👑</span>}
+                        </div>
 
-                  <div className="rewards-mobile__feature">
-                    <div
-                      className="rewards-mobile__feature-media"
-                      style={{ width: "46px", height: "56px" }}
-                      aria-hidden="true"
-                    >
-                      <img
-                        src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-1.svg"
-                        alt=""
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rewards-mobile__feature-title">HackerRank</div>
-                    <div className="rewards-mobile__feature-body">
-                      exclusive<br />merch
-                    </div>
-                  </div>
+                        <div className="col-span-6 flex flex-col">
+                          <span className="font-bold text-[#121418] text-[14px]">
+                            {entry.member?.name || "Hacker Crew"}
+                          </span>
+                          <span className="text-[11px] text-gray-500">
+                            @{entry.member?.hackerrankUsername || "hacker"}
+                          </span>
+                        </div>
+
+                        <div className="col-span-2 text-center text-gray-600">
+                          {entry.eventsAttended}
+                        </div>
+
+                        <div className="col-span-2 text-right font-bold text-[#121418] text-[15px]">
+                          {entry.score}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-
-              <div className="rewards-mobile__divider" aria-hidden="true"></div>
-
-              <div className="rewards-mobile__block">
-                <div
-                  className="rewards-mobile__summary-media"
-                  style={{ width: "196px", height: "200px" }}
-                  aria-hidden="true"
-                >
-                  <img
-                    src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector.svg"
-                    alt=""
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className="rewards-mobile__intro">
-                  <h3 className="rewards-mobile__title">For All Participants</h3>
-                  <p className="rewards-mobile__description">
-                    Every participant wins something valuable
-                  </p>
-                </div>
-
-                <div className="rewards-mobile__ticket">
-                  <div className="reward-ticket__icon" aria-hidden="true">
-                    <img
-                      className="reward-ticket__shape"
-                      src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Subtract.svg"
-                      alt=""
-                      loading="lazy"
-                    />
-                    <img
-                      className="reward-ticket__mark"
-                      src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/image.png"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="rewards-mobile__ticket-count">10</div>
-                  <div className="rewards-mobile__ticket-text">
-                    HackerRank AI Mock Interview Credits
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="section section--faq" id="faq-heading" aria-labelledby="faq-heading">
+        {/* 7. CORE TEAM SECTION */}
+        <section className="section border-t border-[#c1c2d6]" id="team-heading" aria-labelledby="team-heading">
           <div className="section__stack">
-            <h2 className="section__title">
-              Frequently Asked Questions
-            </h2>
+            <h2 className="section__title font-newsreader italic text-[42px]">Architects of Chaos</h2>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-[1200px] mx-auto mt-6">
+              {[
+                {
+                  name: "Dharshan K",
+                  role: "President / Chief Architect",
+                  bio: "System design architect. Solves graph theory problems for fun. Refactors everything.",
+                  avatar: "Dharshan",
+                },
+                {
+                  name: "Ananya Rao",
+                  role: "Vice President / Guild Lead",
+                  bio: "Sprint coordinator, hackathon expert, and community builder. Loves clean architecture.",
+                  avatar: "Ananya",
+                },
+                {
+                  name: "Rohan Verma",
+                  role: "Technical Lead",
+                  bio: "6-star programmer on HackerRank. Machine learning enthusiast and backend developer.",
+                  avatar: "Rohan",
+                },
+                {
+                  name: "Sanya Gupta",
+                  role: "Design Lead",
+                  bio: "Creative mind. Crafts responsive vectors, elegant layouts, and visual design assets.",
+                  avatar: "Sanya",
+                },
+              ].map((member, idx) => (
+                <div key={idx} className="border border-[#c1c2d6] bg-white p-6 flex flex-col gap-4 text-center items-center rounded-lg hover:shadow-md transition-shadow">
+                  <img
+                    src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${member.avatar}`}
+                    alt={member.name}
+                    className="w-20 h-20 rounded-full border border-[#c1c2d6] p-1 bg-gray-50"
+                  />
+                  <div className="flex flex-col">
+                    <h3 className="font-satoshi font-bold text-[16px] text-[#121418] uppercase">{member.name}</h3>
+                    <span className="text-[12px] font-newsreader italic text-gray-500 mt-0.5">{member.role}</span>
+                  </div>
+                  <p className="font-satoshi text-[12px] text-gray-600 leading-relaxed max-w-[200px]">
+                    {member.bio}
+                  </p>
+                  <div className="flex gap-4 text-[12px] font-bold text-[#121418] mt-2">
+                    <a href="#" className="hover:underline">LinkedIn</a>
+                    <a href="#" className="hover:underline">GitHub</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 8. CREW JOIN REGISTRATION FORM */}
+        <section className="section border-t border-[#c1c2d6] bg-[#f8f9fa]" id="join-crew-section">
+          <div className="section__stack">
+            <h2 className="section__title font-newsreader italic text-[42px]">Crew Registration</h2>
+
+            <div className="w-full max-w-[640px] mx-auto border border-[#c1c2d6] bg-white p-6 md:p-8 rounded-lg shadow-sm">
+              {joinMutation.isSuccess ? (
+                <div className="text-center py-10 flex flex-col items-center gap-4">
+                  <span className="text-[#121418] font-newsreader italic text-[32px] font-bold">Mission Accepted</span>
+                  <span className="text-[14px] text-gray-600 leading-relaxed max-w-[400px]">
+                    Registration received. Welcome to the HackerRank SJGI crew. Check your email for transmission logs.
+                  </span>
+                  <button
+                    onClick={() => {
+                      joinMutation.reset();
+                      resetJoinForm();
+                    }}
+                    className="button mt-6 bg-[#121418] hover:bg-black text-white px-6 py-3 rounded border-none cursor-pointer"
+                  >
+                    Open New Shell
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleJoinSubmit(handleJoinCrew)} className="flex flex-col gap-5 text-[14px] font-satoshi text-[#121418]">
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-700">Full Name</label>
+                      <input
+                        type="text"
+                        {...registerJoin("name")}
+                        placeholder="e.g. Aravind Swamy"
+                        className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                      />
+                      {joinErrors.name && <span className="text-red-500 text-[12px]">{joinErrors.name.message}</span>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-700">Email Address</label>
+                      <input
+                        type="email"
+                        {...registerJoin("email")}
+                        placeholder="e.g. aravind@sjgi.edu"
+                        className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                      />
+                      {joinErrors.email && <span className="text-red-500 text-[12px]">{joinErrors.email.message}</span>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-700">Roll Number</label>
+                      <input
+                        type="text"
+                        {...registerJoin("rollNumber")}
+                        placeholder="e.g. 22CS104"
+                        className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                      />
+                      {joinErrors.rollNumber && <span className="text-red-500 text-[12px]">{joinErrors.rollNumber.message}</span>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-700">Department</label>
+                      <input
+                        type="text"
+                        {...registerJoin("department")}
+                        placeholder="e.g. CSE / IT / ECE"
+                        className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                      />
+                      {joinErrors.department && <span className="text-red-500 text-[12px]">{joinErrors.department.message}</span>}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-700">Year</label>
+                      <select
+                        {...registerJoin("year", { valueAsNumber: true })}
+                        className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white cursor-pointer"
+                      >
+                        <option value={1}>1st Year</option>
+                        <option value={2}>2nd Year</option>
+                        <option value={3}>3rd Year</option>
+                        <option value={4}>4th Year</option>
+                      </select>
+                      {joinErrors.year && <span className="text-red-500 text-[12px]">{joinErrors.year.message}</span>}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-700">HackerRank Username</label>
+                    <input
+                      type="text"
+                      {...registerJoin("hackerrankUsername")}
+                      placeholder="e.g. aravind_codez"
+                      className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                    />
+                    {joinErrors.hackerrankUsername && <span className="text-red-500 text-[12px]">{joinErrors.hackerrankUsername.message}</span>}
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-700">Why do you want to join the Crew?</label>
+                    <textarea
+                      rows={4}
+                      {...registerJoin("whyJoin")}
+                      placeholder="Tell us about your coding passions, systems you enjoy building..."
+                      className="border border-[#c1c2d6] px-3 py-2.5 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white resize-none"
+                    />
+                    {joinErrors.whyJoin && <span className="text-red-500 text-[12px]">{joinErrors.whyJoin.message}</span>}
+                  </div>
+
+                  {joinMutation.isError && (
+                    <div className="text-red-500 font-bold text-center text-[12px]">
+                      Error: {joinMutation.error.message}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={joinMutation.isPending}
+                    className="button font-satoshi font-bold py-4 mt-2 bg-[#121418] hover:bg-black text-white rounded border-none cursor-pointer text-center text-[13px] uppercase tracking-wider"
+                  >
+                    {joinMutation.isPending ? "Transmitting..." : "Submit Registration"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* 9. FAQ SECTION */}
+        <section className="section border-t border-[#c1c2d6]" id="faq-heading" aria-labelledby="faq-heading">
+          <div className="section__stack">
+            <h2 className="section__title font-newsreader italic text-[42px]">FAQs</h2>
             <FAQSection />
           </div>
         </section>
 
-        {/* Footer Section */}
-        <footer className="footer">
-          <div className="footer__inner">
-            <div className="footer__links" aria-label="Footer">
-              <a
-                className="footer__link"
-                href="https://www.hackerrank.com/about-us/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Privacy Policy
-              </a>
-              <a
-                className="footer__link"
-                href="https://www.hackerrank.com/about-us/terms-of-service"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Terms &amp; Conditions
-              </a>
-              <a className="footer__link" href="mailto:help@hackerrank.com">
-                Contact Us
-              </a>
-              <a
-                className="footer__discord-link"
-                href="https://discord.gg/TzsUaAhPbr"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Join our Discord community"
-              >
-                <svg
-                  className="footer__discord-icon"
-                  width="18"
-                  height="14"
-                  viewBox="0 0 18 14"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M15.246 1.185A14.93 14.93 0 0 0 11.548 0c-.174.316-.377.742-.517 1.08a13.765 13.765 0 0 0-4.063 0A11.517 11.517 0 0 0 6.45 0 14.975 14.975 0 0 0 2.75 1.188C.395 4.703-.242 8.131.076 11.51a15.086 15.086 0 0 0 4.592 2.327 11.4 11.4 0 0 0 .985-1.608 9.783 9.783 0 0 1-1.55-.748c.13-.095.257-.194.38-.295 2.99 1.381 6.232 1.381 9.185 0 .124.101.252.2.38.295-.494.294-1.014.544-1.553.75.284.573.611 1.116.985 1.606a15.048 15.048 0 0 0 4.595-2.326c.376-3.944-.64-7.34-2.829-10.326ZM6.009 9.435c-.878 0-1.6-.809-1.6-1.8 0-.99.706-1.8 1.6-1.8.893 0 1.614.81 1.599 1.8.001.991-.706 1.8-1.599 1.8Zm5.982 0c-.878 0-1.599-.809-1.599-1.8 0-.99.706-1.8 1.6-1.8.892 0 1.613.81 1.598 1.8 0 .991-.706 1.8-1.599 1.8Z"
-                    fill="#ffffff"
-                  />
-                </svg>
-                Discord
-              </a>
+        {/* 10. ARCADE FOOTER */}
+        <footer className="footer bg-white border-t border-[#c1c2d6] py-16 px-4 md:px-8 text-center flex flex-col items-center gap-10 select-none overflow-hidden">
+          <div className="brand-logo footer__logo">
+            <img
+              src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
+              alt="HackerRank Logo"
+              decoding="async"
+              loading="lazy"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 font-satoshi text-[14px] text-gray-500">
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="hover:text-black cursor-pointer">Back to Top</button>
+            <button onClick={() => document.getElementById("pillars-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Pillars</button>
+            <button onClick={() => document.getElementById("timeline-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Timeline</button>
+            <button onClick={() => document.getElementById("quests-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Quests</button>
+            <button onClick={() => document.getElementById("leaderboard-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Leaderboard</button>
+            <a href="/admin" className="hover:text-black">Admin Panel</a>
+          </div>
+
+          <p className="font-satoshi text-[12px] text-gray-400 mt-2">
+            &copy; 2026 HRCC SJGI &mdash; All Bugs Reserved.
+          </p>
+        </footer>
+
+      </main>
+
+      {/* 11. RSVP MODAL PANEL (MATCHED TO CLONED AESTHETIC) */}
+      {activeRsvpEvent && (
+        <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 font-satoshi">
+          <div className="w-full max-w-[420px] bg-white border border-[#c1c2d6] p-6 rounded-lg shadow-2xl relative">
+            
+            {/* Close trigger */}
+            <button
+              onClick={() => setActiveRsvpEvent(null)}
+              className="absolute top-3 right-4 text-[16px] font-bold text-gray-400 hover:text-black border-none bg-transparent cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <div className="text-center mb-6">
+              <span className="text-[11px] uppercase font-bold text-gray-400 block mb-2">Quest RSVP</span>
+              <h3 className="font-newsreader italic text-[24px] text-[#121418] leading-tight uppercase">
+                {activeRsvpEvent.title}
+              </h3>
             </div>
 
-            <div className="brand-logo" aria-label="HackerRank">
-              <img
-                src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem.svg"
-                alt="HackerRank"
-                loading="lazy"
-              />
-            </div>
+            {rsvpSuccess ? (
+              <div className="text-center py-6 flex flex-col items-center gap-3">
+                <span className="text-[#121418] font-newsreader italic text-[24px] font-bold">Registration Successful</span>
+                <span className="text-[13px] text-gray-500 leading-relaxed max-w-[300px] mt-2">
+                  Your spot has been reserved in the crew quest telemetry system. Prepare your engine.
+                </span>
+                <button
+                  onClick={() => setActiveRsvpEvent(null)}
+                  className="button mt-6 bg-[#121418] hover:bg-black text-white px-6 py-3 rounded border-none cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleRsvpSubmit(handleRsvpSubmitWrapper)} className="flex flex-col gap-4 text-[13px]">
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-bold text-gray-700">Full Name</label>
+                  <input
+                    type="text"
+                    {...registerRsvp("name")}
+                    placeholder="e.g. Aravind Swamy"
+                    className="border border-[#c1c2d6] px-3 py-2 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                  />
+                  {rsvpErrors.name && <span className="text-red-500 text-[11px]">{rsvpErrors.name.message}</span>}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-bold text-gray-700">Email Address</label>
+                  <input
+                    type="email"
+                    {...registerRsvp("email")}
+                    placeholder="e.g. aravind@sjgi.edu"
+                    className="border border-[#c1c2d6] px-3 py-2 rounded focus:outline-none focus:border-[#121418] text-[13px] bg-white"
+                  />
+                  {rsvpErrors.email && <span className="text-red-500 text-[11px]">{rsvpErrors.email.message}</span>}
+                </div>
+
+                {rsvpError && (
+                  <div className="text-red-500 text-[11px] font-bold text-center mt-1">
+                    Error: {rsvpError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={rsvpMutation.isPending}
+                  className="button font-satoshi font-bold py-3.5 mt-2 bg-[#121418] hover:bg-black text-white rounded border-none cursor-pointer text-center text-[12px] uppercase tracking-wider"
+                >
+                  {rsvpMutation.isPending ? "Transmitting..." : "Reserve Quest Spot"}
+                </button>
+              </form>
+            )}
+
           </div>
-        </footer>
-      </main>
+        </div>
+      )}
     </>
   );
 }
