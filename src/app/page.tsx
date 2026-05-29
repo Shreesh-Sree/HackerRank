@@ -481,12 +481,7 @@ export default function Home() {
                   ];
                   const trophyImg = trophyImages[idx % 3];
                   
-                  const cardTypeClass = 
-                    idx === 0 
-                      ? "reward-card--grand" 
-                      : idx === 1 
-                        ? "reward-card--runner" 
-                        : "reward-card--participants";
+                  const cardTypeClass = "reward-card--grand";
 
                   return (
                     <article key={event.id} className={`reward-card ${cardTypeClass} w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6`}>
@@ -733,7 +728,7 @@ export default function Home() {
             <div className="rewards-desktop w-full max-w-[1280px] mx-auto flex flex-col gap-8 mt-6">
               
               {/* Alumni Card 1 */}
-              <article className="reward-card reward-card--runner w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6">
+              <article className="reward-card reward-card--grand w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6">
                 <div className="reward-card__hero md:w-1/3 flex items-center justify-center p-4">
                   <img
                     src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Siddharth"
@@ -760,7 +755,7 @@ export default function Home() {
               </article>
 
               {/* Alumni Card 2 */}
-              <article className="reward-card reward-card--runner w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6">
+              <article className="reward-card reward-card--grand w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6">
                 <div className="reward-card__hero md:w-1/3 flex items-center justify-center p-4">
                   <img
                     src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Riya"
