@@ -84,10 +84,24 @@ export default function Navigation() {
         </a>
         <a
           className="topnav__link"
+          href="#sandbox-heading"
+          onClick={(e) => handleLinkClick(e, "#sandbox-heading")}
+        >
+          Sandbox
+        </a>
+        <a
+          className="topnav__link"
           href="#leaderboard-heading"
           onClick={(e) => handleLinkClick(e, "#leaderboard-heading")}
         >
           Leaderboard
+        </a>
+        <a
+          className="topnav__link"
+          href="#milestones-heading"
+          onClick={(e) => handleLinkClick(e, "#milestones-heading")}
+        >
+          Milestones
         </a>
         <a
           className="topnav__link"
@@ -197,10 +211,24 @@ export default function Navigation() {
           </a>
           <a
             className="mobile-topnav__link"
+            href="#sandbox-heading"
+            onClick={(e) => handleLinkClick(e, "#sandbox-heading")}
+          >
+            Sandbox
+          </a>
+          <a
+            className="mobile-topnav__link"
             href="#leaderboard-heading"
             onClick={(e) => handleLinkClick(e, "#leaderboard-heading")}
           >
             Leaderboard
+          </a>
+          <a
+            className="mobile-topnav__link"
+            href="#milestones-heading"
+            onClick={(e) => handleLinkClick(e, "#milestones-heading")}
+          >
+            Milestones
           </a>
           <a
             className="mobile-topnav__link"

@@ -35,6 +35,48 @@ export default function Home() {
   const [rsvpSuccess, setRsvpSuccess] = useState(false);
   const [rsvpError, setRsvpError] = useState("");
 
+  // Sandbox Compiler State
+  const [code, setCode] = useState(
+    `function findSingle(nums) {\n  // Implement O(log n) solution here\n  let low = 0, high = nums.length - 1;\n  while (low < high) {\n    let mid = Math.floor((low + high) / 2);\n    if (mid % 2 === 1) mid--;\n    if (nums[mid] === nums[mid + 1]) {\n      low = mid + 2;\n    } else {\n      high = mid;\n    }\n  }\n  return nums[low];\n}`
+  );
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [isCompiling, setIsCompiling] = useState(false);
+
+  const runCodeSimulation = () => {
+    setIsCompiling(true);
+    setTerminalOutput(["> Initializing node compiler...", "> Loading runtime libraries..."]);
+
+    setTimeout(() => {
+      setTerminalOutput((prev) => [...prev, "> Compiling solution... SUCCESS."]);
+    }, 600);
+
+    setTimeout(() => {
+      setTerminalOutput((prev) => [
+        ...prev,
+        "> Running Test Case 1: nums = [1,1,2,3,3,4,4]...",
+        "  Expected: 2, Got: 2 -> PASS ✅",
+      ]);
+    }, 1200);
+
+    setTimeout(() => {
+      setTerminalOutput((prev) => [
+        ...prev,
+        "> Running Test Case 2: nums = [3,3,7,7,10,11,11]...",
+        "  Expected: 10, Got: 10 -> PASS ✅",
+      ]);
+    }, 1800);
+
+    setTimeout(() => {
+      setTerminalOutput((prev) => [
+        ...prev,
+        "> -----------------------------------------",
+        "> STATUS: 2/2 Test Cases Passed.",
+        "> SCORE SECURED: +100 Quest Points! 🏆",
+      ]);
+      setIsCompiling(false);
+    }, 2400);
+  };
+
   // TanStack Queries
   const { data: eventsList = [], isLoading: eventsLoading } = useQuery({
     queryKey: ["events"],
@@ -163,7 +205,6 @@ export default function Home() {
           </div>
           <div className="hero__overlay" aria-hidden="true"></div>
           <div className="hero__content">
-            {/* Cloned logo badge */}
             <div className="brand-logo reveal" style={{ "--delay": "0.05s" } as React.CSSProperties}>
               <img
                 src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
@@ -174,7 +215,6 @@ export default function Home() {
             </div>
 
             <div className="hero__copy">
-              {/* Cloned title stagger letters reveal - HRCC SJGI */}
               <h1
                 className="hero__title hero-stagger hero-stagger--letters"
                 style={{ "--base-delay": "0.1s" } as React.CSSProperties}
@@ -189,7 +229,6 @@ export default function Home() {
                 <span className="hero-stagger__item" style={{ "--index": 7 } as React.CSSProperties}>G</span>
                 <span className="hero-stagger__item" style={{ "--index": 8 } as React.CSSProperties}>I</span>
               </h1>
-              {/* Cloned subtitle words reveal - SJGI Campus Crew */}
               <p
                 className="hero__subtitle hero-stagger hero-stagger--words font-satoshi uppercase tracking-wider"
                 style={{ "--base-delay": "0.16s" } as React.CSSProperties}
@@ -250,7 +289,6 @@ export default function Home() {
             </h2>
 
             <div className="steps-panel desktop-only">
-              {/* Pillar 1 */}
               <article className="step">
                 <div className="step__media" aria-hidden="true">
                   <picture>
@@ -272,7 +310,6 @@ export default function Home() {
 
               <div className="steps-panel__divider" aria-hidden="true"></div>
 
-              {/* Pillar 2 */}
               <article className="step">
                 <div className="step__media" aria-hidden="true">
                   <picture>
@@ -294,7 +331,6 @@ export default function Home() {
 
               <div className="steps-panel__divider" aria-hidden="true"></div>
 
-              {/* Pillar 3 */}
               <article className="step">
                 <div className="step__media" aria-hidden="true">
                   <picture>
@@ -445,7 +481,6 @@ export default function Home() {
                   ];
                   const trophyImg = trophyImages[idx % 3];
                   
-                  // Use the exact grand, runner, and participant styles from the clone
                   const cardTypeClass = 
                     idx === 0 
                       ? "reward-card--grand" 
@@ -505,6 +540,75 @@ export default function Home() {
           </div>
         </section>
 
+        {/* NEW ADDED SECTION A: DAILY ALGORITHMIC SANDBOX */}
+        <section className="section border-t border-[#c1c2d6] bg-[#f8f9fa]" id="sandbox-heading" aria-labelledby="sandbox-heading">
+          <div className="section__stack max-w-4xl mx-auto">
+            <div className="text-center flex flex-col gap-2 mb-4">
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px]">[INTERACTIVE_SANDBOX]</span>
+              <h2 className="section__title font-newsreader italic text-[42px]">Daily Sandbox Challenge</h2>
+              <p className="text-[14px] text-gray-600 max-w-[600px] mx-auto mt-2">
+                Replicate the competitive programming experience inside this minimal, live compiler simulator! Try to compile the O(log n) solution below.
+              </p>
+            </div>
+
+            <div className="w-full border border-[#c1c2d6] bg-white overflow-hidden shadow-sm flex flex-col md:flex-row min-h-[400px]">
+              
+              {/* Left Side: Code Editor */}
+              <div className="md:w-3/5 p-4 flex flex-col border-r border-[#c1c2d6] bg-gray-50">
+                <div className="flex items-center justify-between border-b border-[#c1c2d6]/50 pb-2 mb-3">
+                  <span className="font-bold text-[12px] text-gray-500">PROBLEM: Single element in sorted array</span>
+                  <span className="text-[10px] uppercase font-bold text-green-600 bg-green-50 px-2 py-0.5 border border-green-200">JS / node.js</span>
+                </div>
+                <textarea
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="flex-1 w-full font-mono text-[12px] p-3 border border-[#c1c2d6] bg-[#121418] text-[#39FF14] focus:outline-none resize-none leading-relaxed min-h-[250px]"
+                />
+                <button
+                  onClick={runCodeSimulation}
+                  disabled={isCompiling}
+                  className="button mt-3 font-satoshi font-bold py-3 bg-[#121418] hover:bg-black text-white text-[12px] rounded border-none cursor-pointer uppercase tracking-wider"
+                >
+                  {isCompiling ? "Compiling..." : "Compile & Run"}
+                </button>
+              </div>
+
+              {/* Right Side: Simulated Terminal output */}
+              <div className="md:w-2/5 p-4 bg-[#050505] text-white flex flex-col justify-between font-mono text-[12px]">
+                <div>
+                  <div className="border-b border-gray-800 pb-2 mb-3 text-gray-500 font-bold text-[10px] uppercase">
+                    Execution Log Output
+                  </div>
+                  <div className="flex flex-col gap-2 min-h-[200px]">
+                    {terminalOutput.length === 0 ? (
+                      <span className="text-gray-600 italic">Click &quot;Compile &amp; Run&quot; to test your algorithmic solution...</span>
+                    ) : (
+                      terminalOutput.map((line, idx) => (
+                        <div
+                          key={idx}
+                          className={`${
+                            line.includes("PASS")
+                              ? "text-green-400"
+                              : line.includes("SCORE")
+                              ? "text-yellow-400 font-bold animate-bounce"
+                              : "text-gray-300"
+                          }`}
+                        >
+                          {line}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+                <div className="text-[9px] text-gray-600 border-t border-gray-800 pt-2 text-right">
+                  HRCC Compiler v4.2.1
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
         {/* 6. LEADERBOARD SECTION */}
         <section className="section border-t border-[#c1c2d6]" id="leaderboard-heading" aria-labelledby="leaderboard-heading">
           <div className="section__stack">
@@ -517,7 +621,6 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="flex flex-col w-full text-[13px] font-satoshi">
-                  {/* Table header */}
                   <div className="grid grid-cols-12 font-bold bg-[#f8f9fa] border-b border-[#c1c2d6] py-3.5 px-4 text-gray-500 text-[11px] tracking-wider uppercase">
                     <div className="col-span-2">Rank</div>
                     <div className="col-span-6">Member Username</div>
@@ -525,7 +628,6 @@ export default function Home() {
                     <div className="col-span-2 text-right">Score</div>
                   </div>
 
-                  {/* Table rows */}
                   {leaderboardList.map((entry: any, index: number) => {
                     const isTopRank = index === 0;
                     return (
@@ -561,6 +663,129 @@ export default function Home() {
                   })}
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* NEW ADDED SECTION B: UNLOCKED CHAPTER MILESTONES (Reusing Steps style) */}
+        <section className="section border-t border-[#c1c2d6] bg-white" id="milestones-heading" aria-labelledby="milestones-heading">
+          <div className="section__stack">
+            <h2 className="section__title font-newsreader italic text-[42px]">Chapter Accolades</h2>
+
+            <div className="steps-panel desktop-only">
+              <article className="step">
+                <div className="step__media" aria-hidden="true">
+                  <picture>
+                    <img src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-11.svg" alt="" />
+                  </picture>
+                </div>
+                <div className="step__copy">
+                  <h3 className="step__title font-satoshi font-bold text-[18px]">100K+ Submissions</h3>
+                  <p className="step__body font-satoshi text-gray-600 leading-relaxed text-[14px]">
+                    Aggregated across all weekly algorithmic quests on our exclusive HackerRank challenge portal.
+                  </p>
+                </div>
+              </article>
+
+              <div className="steps-panel__divider" aria-hidden="true"></div>
+
+              <article className="step">
+                <div className="step__media" aria-hidden="true">
+                  <picture>
+                    <img src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-3.svg" alt="" />
+                  </picture>
+                </div>
+                <div className="step__copy">
+                  <h3 className="step__title font-satoshi font-bold text-[18px]">Top 10 National</h3>
+                  <p className="step__body font-satoshi text-gray-600 leading-relaxed text-[14px]">
+                    Consistently recognized as a premier student coding chapter by HackerRank Academic Services.
+                  </p>
+                </div>
+              </article>
+
+              <div className="steps-panel__divider" aria-hidden="true"></div>
+
+              <article className="step">
+                <div className="step__media" aria-hidden="true">
+                  <picture>
+                    <img src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Vector-8.svg" alt="" />
+                  </picture>
+                </div>
+                <div className="step__copy">
+                  <h3 className="step__title font-satoshi font-bold text-[18px]">150+ Careers Launched</h3>
+                  <p className="step__body font-satoshi text-gray-600 leading-relaxed text-[14px]">
+                    Alumni placed at Google, Amazon, HackerRank, Microsoft, and major global software engineering firms.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* NEW ADDED SECTION C: ALUMNI PLACEMENTS TELEMETRY (Reusing Rewards Cards style) */}
+        <section className="section border-t border-[#c1c2d6] bg-[#f8f9fa]" id="alumni-heading" aria-labelledby="alumni-heading">
+          <div className="section__stack">
+            <h2 className="section__title font-newsreader italic text-[42px]">Voices from the Guild</h2>
+            <p className="text-[14px] text-gray-600 text-center max-w-[600px] mx-auto mt-2">
+              Discover how former members of the St. Joseph&apos;s HackerRank Campus Crew leveraged coding sprints to secure top-tier engineering roles.
+            </p>
+
+            <div className="rewards-desktop w-full max-w-[1280px] mx-auto flex flex-col gap-8 mt-6">
+              
+              {/* Alumni Card 1 */}
+              <article className="reward-card reward-card--runner w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6">
+                <div className="reward-card__hero md:w-1/3 flex items-center justify-center p-4">
+                  <img
+                    src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Siddharth"
+                    alt="Siddharth Sen"
+                    className="w-24 h-24 rounded-full border border-[#c1c2d6] p-1 bg-gray-50"
+                  />
+                </div>
+                <div className="reward-card__content md:w-2/3 flex flex-col justify-between p-4 gap-4">
+                  <div className="reward-card__intro flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] uppercase font-bold text-green-600 border border-green-400 px-2 py-0.5 rounded bg-green-50">
+                        Software Engineer @ Google
+                      </span>
+                    </div>
+                    <h3 className="reward-card__title font-newsreader italic text-[28px] md:text-[34px] leading-tight text-[#121418] mt-1">
+                      &quot;Brackets trained my brain to analyze time complexity on the fly.&quot;
+                    </h3>
+                    <p className="reward-card__description font-satoshi text-[14px] text-gray-600 leading-relaxed mt-2">
+                      The weekly algorithmic battles and competitive pressure prepared me flawlessly for complex interview rounds. Being part of HRCC SJGI was the defining pivot point of my campus career.
+                    </p>
+                  </div>
+                  <span className="font-bold text-[#121418] text-[14px]">— Siddharth Sen, Class of 22</span>
+                </div>
+              </article>
+
+              {/* Alumni Card 2 */}
+              <article className="reward-card reward-card--runner w-full flex flex-col md:flex-row border border-[#c1c2d6] bg-white overflow-hidden p-6">
+                <div className="reward-card__hero md:w-1/3 flex items-center justify-center p-4">
+                  <img
+                    src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Riya"
+                    alt="Riya Sharma"
+                    className="w-24 h-24 rounded-full border border-[#c1c2d6] p-1 bg-gray-50"
+                  />
+                </div>
+                <div className="reward-card__content md:w-2/3 flex flex-col justify-between p-4 gap-4">
+                  <div className="reward-card__intro flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] uppercase font-bold text-blue-600 border border-blue-400 px-2 py-0.5 rounded bg-blue-50">
+                        Cloud Architect @ Amazon
+                      </span>
+                    </div>
+                    <h3 className="reward-card__title font-newsreader italic text-[28px] md:text-[34px] leading-tight text-[#121418] mt-1">
+                      &quot;Designing dynamic schemas under pressure built real confidence.&quot;
+                    </h3>
+                    <p className="reward-card__description font-satoshi text-[14px] text-gray-600 leading-relaxed mt-2">
+                      Collaborating on real-world projects during 24-hour sprints taught me database schema design, system configurations, and clean repository structures. It felt like real developer environments.
+                    </p>
+                  </div>
+                  <span className="font-bold text-[#121418] text-[14px]">— Riya Sharma, Class of 23</span>
+                </div>
+              </article>
+
             </div>
           </div>
         </section>
@@ -772,7 +997,10 @@ export default function Home() {
             <button onClick={() => document.getElementById("pillars-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Pillars</button>
             <button onClick={() => document.getElementById("timeline-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Timeline</button>
             <button onClick={() => document.getElementById("quests-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Quests</button>
+            <button onClick={() => document.getElementById("sandbox-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Sandbox</button>
             <button onClick={() => document.getElementById("leaderboard-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Leaderboard</button>
+            <button onClick={() => document.getElementById("milestones-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Milestones</button>
+            <button onClick={() => document.getElementById("alumni-heading")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-black cursor-pointer">Alumni</button>
             <a href="/admin" className="hover:text-black">Admin Panel</a>
           </div>
 
