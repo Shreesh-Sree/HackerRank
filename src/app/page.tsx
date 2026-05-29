@@ -34,6 +34,7 @@ export default function Home() {
   const [activeRsvpEvent, setActiveRsvpEvent] = useState<{ id: string; title: string } | null>(null);
   const [rsvpSuccess, setRsvpSuccess] = useState(false);
   const [rsvpError, setRsvpError] = useState("");
+  const [cheatTab, setCheatTab] = useState<"cpp" | "sql" | "sys">("cpp");
 
   // Sandbox Compiler State
   const [code, setCode] = useState(
@@ -604,6 +605,50 @@ export default function Home() {
           </div>
         </section>
 
+        {/* NEW ADDED SECTION: COMPLEXITY ARENA (Interactive Big-O Chart) */}
+        <section className="section border-t border-[#c1c2d6]" id="complexity-heading" aria-labelledby="complexity-heading">
+          <div className="section__stack max-w-4xl mx-auto">
+            <div className="text-center flex flex-col gap-2 mb-4">
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px]">[COMPLEXITY_ARENA]</span>
+              <h2 className="section__title font-newsreader italic text-[42px]">Complexity Arena</h2>
+              <p className="text-[14px] text-gray-600 max-w-[600px] mx-auto mt-2">
+                An interactive reference cheat sheet of common data structure operations and their corresponding algorithmic time complexities.
+              </p>
+            </div>
+
+            <div className="w-full border border-[#c1c2d6] bg-white overflow-hidden shadow-sm font-satoshi text-[13px]">
+              <div className="grid grid-cols-12 font-bold bg-[#f8f9fa] border-b border-[#c1c2d6] py-3.5 px-4 text-gray-500 text-[11px] tracking-wider uppercase text-center">
+                <div className="col-span-4 text-left">Data Structure</div>
+                <div className="col-span-2">Access</div>
+                <div className="col-span-2">Search</div>
+                <div className="col-span-2">Insertion</div>
+                <div className="col-span-2">Deletion</div>
+              </div>
+
+              {[
+                { name: "Array / Vector", access: "O(1)", search: "O(n)", insert: "O(n)", delete: "O(n)" },
+                { name: "Stack", access: "O(n)", search: "O(n)", insert: "O(1)", delete: "O(1)" },
+                { name: "Queue", access: "O(n)", search: "O(n)", insert: "O(1)", delete: "O(1)" },
+                { name: "Singly-Linked List", access: "O(n)", search: "O(n)", insert: "O(1)", delete: "O(1)" },
+                { name: "Hash Table (Map)", access: "N/A", search: "O(1)", insert: "O(1)", delete: "O(1)" },
+                { name: "Binary Search Tree", access: "O(log n)", search: "O(log n)", insert: "O(log n)", delete: "O(log n)" },
+                { name: "Red-Black Tree (TreeMap)", access: "O(log n)", search: "O(log n)", insert: "O(log n)", delete: "O(log n)" },
+              ].map((ds, idx) => (
+                <div
+                  key={idx}
+                  className="grid grid-cols-12 items-center py-3.5 px-4 border-b border-[#c1c2d6]/50 last:border-0 hover:bg-[#f8f9fa] transition-colors text-center"
+                >
+                  <div className="col-span-4 text-left font-bold text-[#121418]">{ds.name}</div>
+                  <div className={`col-span-2 font-mono ${ds.access === "O(1)" ? "text-green-600 font-bold" : "text-gray-600"}`}>{ds.access}</div>
+                  <div className={`col-span-2 font-mono ${ds.search === "O(1)" ? "text-green-600 font-bold" : "text-gray-600"}`}>{ds.search}</div>
+                  <div className={`col-span-2 font-mono ${ds.insert === "O(1)" ? "text-green-600 font-bold" : "text-gray-600"}`}>{ds.insert}</div>
+                  <div className={`col-span-2 font-mono ${ds.delete === "O(1)" ? "text-green-600 font-bold" : "text-gray-600"}`}>{ds.delete}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* 6. LEADERBOARD SECTION */}
         <section className="section border-t border-[#c1c2d6]" id="leaderboard-heading" aria-labelledby="leaderboard-heading">
           <div className="section__stack">
@@ -656,6 +701,139 @@ export default function Home() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* NEW ADDED SECTION: DEVELOPER UTILITIES (Hacker Cheat Sheets) */}
+        <section className="section border-t border-[#c1c2d6] bg-[#f8f9fa]" id="utilities-heading" aria-labelledby="utilities-heading">
+          <div className="section__stack max-w-4xl mx-auto">
+            <div className="text-center flex flex-col gap-2 mb-4">
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px]">[CREW_UTILITIES]</span>
+              <h2 className="section__title font-newsreader italic text-[42px]">Hacker Cheat Sheets</h2>
+              <p className="text-[14px] text-gray-600 max-w-[600px] mx-auto mt-2">
+                Quick-reference developer templates curated by the SJGI crew leaders for competitive battles and software deployments.
+              </p>
+            </div>
+
+            {/* Tab triggers */}
+            <div className="flex border-b border-[#c1c2d6] gap-6 text-[12px] font-bold font-satoshi justify-center mb-6">
+              <button
+                onClick={() => setCheatTab("cpp")}
+                className={`pb-2 border-b-2 transition-all cursor-pointer ${
+                  cheatTab === "cpp" ? "border-[#121418] text-[#121418] font-bold" : "border-transparent text-gray-400 hover:text-[#121418]"
+                }`}
+              >
+                Competitive Programming
+              </button>
+              <button
+                onClick={() => setCheatTab("sql")}
+                className={`pb-2 border-b-2 transition-all cursor-pointer ${
+                  cheatTab === "sql" ? "border-[#121418] text-[#121418] font-bold" : "border-transparent text-gray-400 hover:text-[#121418]"
+                }`}
+              >
+                Postgres & Drizzle ORM
+              </button>
+              <button
+                onClick={() => setCheatTab("sys")}
+                className={`pb-2 border-b-2 transition-all cursor-pointer ${
+                  cheatTab === "sys" ? "border-[#121418] text-[#121418] font-bold" : "border-transparent text-gray-400 hover:text-[#121418]"
+                }`}
+              >
+                System Design Utilities
+              </button>
+            </div>
+
+            {/* Tab content */}
+            <div className="w-full border border-[#c1c2d6] bg-white p-4 shadow-sm rounded">
+              {cheatTab === "cpp" && (
+                <div className="flex flex-col gap-3 font-satoshi text-left">
+                  <h3 className="font-bold text-[16px] text-[#121418]">C++ STL Template Boilerplate</h3>
+                  <p className="text-[13px] text-gray-600 leading-relaxed">
+                    Optimal fast-input templates configured for strict time limits during HackerRank algorithm tournaments.
+                  </p>
+                  <pre className="bg-[#121418] text-[#39FF14] p-4 rounded font-mono text-[12px] leading-relaxed overflow-x-auto">
+{`#include <bits/stdc++.h>
+using namespace std;
+
+#define FAST_IO ios_base::sync_with_stdio(false); cin.tie(NULL);
+typedef long long ll;
+
+void solve() {
+    // Fast O(1) hashing / graph solution here
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+}
+
+int main() {
+    FAST_IO
+    int t; cin >> t;
+    while(t--) solve();
+    return 0;
+}`}
+                  </pre>
+                </div>
+              )}
+
+              {cheatTab === "sql" && (
+                <div className="flex flex-col gap-3 font-satoshi text-left">
+                  <h3 className="font-bold text-[16px] text-[#121418]">Drizzle Relations Schema Mapping</h3>
+                  <p className="text-[13px] text-gray-600 leading-relaxed">
+                    Modern Drizzle ORM table specifications connecting relational Postgres models with uuid keys and cascades.
+                  </p>
+                  <pre className="bg-[#121418] text-[#39FF14] p-4 rounded font-mono text-[12px] leading-relaxed overflow-x-auto">
+{`import { pgTable, uuid, text, relations } from "drizzle-orm/pg-core";
+
+export const members = pgTable("members", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+});
+
+export const membersRelations = relations(members, ({ many }) => ({
+  rsvps: many(rsvps),
+}));`}
+                  </pre>
+                </div>
+              )}
+
+              {cheatTab === "sys" && (
+                <div className="flex flex-col gap-3 font-satoshi text-left">
+                  <h3 className="font-bold text-[16px] text-[#121418]">Horizontal Scaling & Cache Reference</h3>
+                  <p className="text-[13px] text-gray-600 leading-relaxed">
+                    Eviction policies and writing strategies used during major student hack sprint deployments.
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-[12px] border-collapse mt-2 font-mono">
+                      <thead>
+                        <tr className="border-b border-[#c1c2d6] bg-[#f8f9fa] text-gray-500 font-bold">
+                          <th className="p-2">POLICY</th>
+                          <th className="p-2">STRATEGY</th>
+                          <th className="p-2">USE-CASE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-[#c1c2d6]/50">
+                          <td className="p-2 font-bold text-[#121418]">Write-Through</td>
+                          <td className="p-2 text-gray-600">Cache written instantly with DB</td>
+                          <td className="p-2 text-gray-600">Strict data consistency (Leaderboards)</td>
+                        </tr>
+                        <tr className="border-b border-[#c1c2d6]/50">
+                          <td className="p-2 font-bold text-[#121418]">Write-Behind</td>
+                          <td className="p-2 text-gray-600">Cache written first, DB queued</td>
+                          <td className="p-2 text-gray-600">High-frequency logs / RSVP streams</td>
+                        </tr>
+                        <tr>
+                          <td className="p-2 font-bold text-[#121418]">Eviction (LRU)</td>
+                          <td className="p-2 text-gray-600">Evict Least Recently Used</td>
+                          <td className="p-2 text-gray-600">Standard memory constraint mitigation</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>

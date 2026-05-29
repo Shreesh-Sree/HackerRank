@@ -91,10 +91,24 @@ export default function Navigation() {
         </a>
         <a
           className="topnav__link"
+          href="#complexity-heading"
+          onClick={(e) => handleLinkClick(e, "#complexity-heading")}
+        >
+          Complexity
+        </a>
+        <a
+          className="topnav__link"
           href="#leaderboard-heading"
           onClick={(e) => handleLinkClick(e, "#leaderboard-heading")}
         >
           Leaderboard
+        </a>
+        <a
+          className="topnav__link"
+          href="#utilities-heading"
+          onClick={(e) => handleLinkClick(e, "#utilities-heading")}
+        >
+          Utilities
         </a>
         <a
           className="topnav__link"
@@ -218,10 +232,24 @@ export default function Navigation() {
           </a>
           <a
             className="mobile-topnav__link"
+            href="#complexity-heading"
+            onClick={(e) => handleLinkClick(e, "#complexity-heading")}
+          >
+            Complexity
+          </a>
+          <a
+            className="mobile-topnav__link"
             href="#leaderboard-heading"
             onClick={(e) => handleLinkClick(e, "#leaderboard-heading")}
           >
             Leaderboard
+          </a>
+          <a
+            className="mobile-topnav__link"
+            href="#utilities-heading"
+            onClick={(e) => handleLinkClick(e, "#utilities-heading")}
+          >
+            Utilities
           </a>
           <a
             className="mobile-topnav__link"
