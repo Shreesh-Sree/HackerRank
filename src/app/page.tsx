@@ -7,8 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FAQSection from "@/components/FAQSection";
 import ScrollRevealText from "@/components/ScrollRevealText";
-import PixelHand from "@/components/assets/PixelHand";
-import CircuitBrain from "@/components/assets/CircuitBrain";
+
 
 // Zod Validation Schemas
 const joinFormSchema = z.object({
@@ -215,8 +214,13 @@ export default function Home() {
           </div>
           <div className="hero__overlay" aria-hidden="true"></div>
           <div className="hero__content">
-            <div className="reveal flex justify-center mb-[-20px] scale-80 md:scale-95 select-none pointer-events-none" style={{ "--delay": "0.05s" } as React.CSSProperties}>
-              <PixelHand />
+            <div className="brand-logo reveal" style={{ "--delay": "0.05s" } as React.CSSProperties}>
+              <img
+                src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
+                alt="HackerRank"
+                decoding="async"
+                fetchPriority="high"
+              />
             </div>
 
             <div className="hero__copy">
@@ -283,9 +287,6 @@ export default function Home() {
               text="Code beyond reality."
               className="story__accent justify-center text-center font-newsreader italic text-[#4d4d4d]"
             />
-            <div className="flex justify-center mt-6 scale-90 md:scale-100 select-none pointer-events-none" aria-hidden="true">
-              <CircuitBrain />
-            </div>
           </div>
         </section>
 
