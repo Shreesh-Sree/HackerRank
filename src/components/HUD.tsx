@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 export default function HUD() {
   const pathname = usePathname();
-  if (pathname?.startsWith("/admin")) return null;
   const [stage, setStage] = useState("HOME");
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -37,7 +36,9 @@ export default function HUD() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [pathname]);
+
+  if (pathname?.startsWith("/admin")) return null;
 
   const scrollTo = (id: string) => {
     setMobileOpen(false);
@@ -55,7 +56,7 @@ export default function HUD() {
           onClick={() => scrollTo("hero")} 
           className="flex items-center gap-2 cursor-pointer group text-[#39FF14] hover:text-[#00FFFF] transition-colors"
         >
-          <span className="text-[12px] md:text-[14px] font-extrabold tracking-tighter shadow-glow">HackerRank Campus Crew - St. Joseph's</span>
+          <span className="text-[12px] md:text-[14px] font-extrabold tracking-tighter shadow-glow">HackerRank Campus Crew - St. Joseph&apos;s</span>
         </div>
 
         {/* Desktop Navigation Links */}

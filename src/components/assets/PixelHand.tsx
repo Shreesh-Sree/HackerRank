@@ -6,7 +6,7 @@ import gsap from "gsap";
 export default function PixelHand() {
   const containerRef = useRef<HTMLDivElement>(null);
   const handRef = useRef<SVGSVGElement>(null);
-  const emblemRef = useRef<SVGElement>(null);
+  const emblemRef = useRef<SVGGElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -91,7 +91,7 @@ export default function PixelHand() {
         </g>
 
         {/* 2. Floating emblem / green badge held by the fingers */}
-        <g ref={emblemRef as any} transform="translate(0, -6)">
+        <g ref={emblemRef} transform="translate(0, -6)">
           {/* Outer glowing glow shield */}
           <polygon
             points="50,15 68,25 68,45 50,55 32,45 32,25"

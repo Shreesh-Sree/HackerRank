@@ -1,6 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@1,400&display=swap");
-@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;700&family=Syne:wght@400;500;700;800&display=swap");
+
+@font-face {
+  font-family: "Minecraftia";
+  src: url("/fonts/MinecraftiaRegular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/MinecraftiaRegular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "04b_03";
+  src: url("/fonts/04B_03__.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss";
 
 
@@ -19,6 +43,8 @@
 @theme {
   --font-newsreader: "Newsreader", Georgia, serif;
   --font-satoshi: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-minecraftia: "Minecraftia", monospace;
+  --font-pixel: "04b_03", monospace;
   --font-press-start: "Press Start 2P", monospace;
   --font-ibm-mono: "IBM Plex Mono", monospace;
   --font-syne: "Syne", sans-serif;
@@ -188,7 +214,7 @@
         min-width: 320px;
         color: var(--color-ink);
         font-family:
-          "Satoshi",
+          "Minecraftia",
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
@@ -1042,7 +1068,7 @@
         line-height: 24px;
         text-align: left;
         font-family:
-          "Satoshi",
+          "Minecraftia",
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
@@ -1456,10 +1482,15 @@
         border-radius: 16px;
         background: transparent;
         border: 1px solid transparent;
+        overflow: hidden; /* Clips spotlight gradients cleanly inside the capsule */
         transition:
           background 0.3s ease,
           border-color 0.3s ease,
           padding-left 0.35s ease;
+
+        /* Spotlight & Active State Ambience Color Variables */
+        --spotlight-color: rgba(5, 199, 112, 0.08); /* Brand Hacker Green hover shadow */
+        --ambience-color: #05C770; /* Active brand Hacker Green ambience glow */
       }
 
       .topnav.scrolled {
@@ -1501,7 +1532,7 @@
         padding: 8px 24px;
         border-radius: 8px;
         font-family:
-          "Satoshi",
+          "Minecraftia",
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
@@ -1627,7 +1658,7 @@
         padding: 8px 24px;
         border-radius: 8px;
         font-family:
-          "Satoshi",
+          "Minecraftia",
           system-ui,
           -apple-system,
           BlinkMacSystemFont,

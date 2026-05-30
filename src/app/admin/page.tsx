@@ -55,7 +55,10 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadAdminData();
+      const timer = setTimeout(() => {
+        loadAdminData();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated]);
 

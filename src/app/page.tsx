@@ -28,6 +28,28 @@ const rsvpFormSchema = z.object({
 type JoinFormValues = z.infer<typeof joinFormSchema>;
 type RsvpFormValues = z.infer<typeof rsvpFormSchema>;
 
+interface QuestEvent {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  date: string;
+  venue: string;
+  maxCapacity: number;
+}
+
+interface LeaderboardEntry {
+  id: string;
+  memberId: string;
+  score: number;
+  eventsAttended: number;
+  updatedAt: string;
+  member?: {
+    name: string;
+    hackerrankUsername: string;
+  };
+}
+
 export default function Home() {
   const queryClient = useQueryClient();
 
@@ -491,7 +513,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="rewards-desktop w-full max-w-[1280px] mx-auto flex flex-col gap-8">
-                {eventsList.map((event: any, idx: number) => {
+                {eventsList.map((event: QuestEvent, idx: number) => {
                   const trophyImages = [
                     "https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-g.png",
                     "https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/trophy-s.png",
@@ -687,7 +709,7 @@ export default function Home() {
                     <div className="col-span-2 text-right">Score</div>
                   </div>
 
-                  {leaderboardList.map((entry: any, index: number) => {
+                  {leaderboardList.map((entry: LeaderboardEntry, index: number) => {
                     const isTopRank = index === 0;
                     return (
                       <div
@@ -782,7 +804,7 @@ export default function Home() {
 <span className="text-[#ff7b72]">typedef long long</span> <span className="text-[#79c0ff]">ll</span>;{"\n"}
 {"\n"}
 <span className="text-[#ff7b72]">void</span> <span className="text-[#d2a8ff]">solve</span>() {"{"}{"\n"}
-<span className="text-[#8b949e]">    // Fast O(1) hashing / graph solution here</span>{"\n"}
+<span className="text-[#8b949e]">{"    // Fast O(1) hashing / graph solution here"}</span>{"\n"}
 <span className="text-[#ff7b72]">    int</span> n; cin &gt;&gt; n;{"\n"}
 {"    "}vector&lt;<span className="text-[#ff7b72]">int</span>&gt; a(n);{"\n"}
 <span className="text-[#ff7b72]">    for</span>(<span className="text-[#ff7b72]">int</span> &amp;x : a) cin &gt;&gt; x;{"\n"}
