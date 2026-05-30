@@ -226,7 +226,7 @@ export default function Home() {
               <img
                 src="/32-Years-Group-Logo.png"
                 alt="St. Joseph's Group 32 Years"
-                className="h-16 md:h-22 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+                className="h-20 md:h-28 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
                 decoding="async"
                 fetchPriority="high"
               />
@@ -251,10 +251,10 @@ export default function Home() {
                 className="hero__subtitle hero-stagger hero-stagger--words font-satoshi uppercase tracking-wider"
                 style={{ "--base-delay": "0.16s" } as React.CSSProperties}
               >
-                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>St.</span>
-                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>Joseph&apos;s</span>
-                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>Group</span>
-                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>of</span>
+                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>St.</span>{" "}
+                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>Joseph&apos;s</span>{" "}
+                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>Group</span>{" "}
+                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>of</span>{" "}
                 <span className="hero-stagger__item" style={{ "--index": 4 } as React.CSSProperties}>Institutions</span>
               </p>
             </div>

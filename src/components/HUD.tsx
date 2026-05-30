@@ -55,7 +55,7 @@ export default function HUD() {
           onClick={() => scrollTo("hero")} 
           className="flex items-center gap-2 cursor-pointer group text-[#39FF14] hover:text-[#00FFFF] transition-colors"
         >
-          <span className="text-[12px] md:text-[14px] font-extrabold tracking-tighter shadow-glow">HRCC SJGI</span>
+          <span className="text-[12px] md:text-[14px] font-extrabold tracking-tighter shadow-glow">HackerRank Campus Crew - St. Joseph's</span>
         </div>
 
         {/* Desktop Navigation Links */}
