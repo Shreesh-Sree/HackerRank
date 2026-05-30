@@ -214,10 +214,19 @@ export default function Home() {
           </div>
           <div className="hero__overlay" aria-hidden="true"></div>
           <div className="hero__content">
-            <div className="brand-logo reveal" style={{ "--delay": "0.05s" } as React.CSSProperties}>
+            <div className="flex items-center justify-center gap-4 md:gap-6 reveal mb-6 select-none pointer-events-none" style={{ "--delay": "0.05s" } as React.CSSProperties}>
               <img
-                src="https://cdn.hackerrank.com/hackerrank-orchestrate-may26/assests/Logo-Emblem-1.svg"
+                src="/HackerRank_Logo.png"
                 alt="HackerRank"
+                className="h-10 md:h-12 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+                decoding="async"
+                fetchPriority="high"
+              />
+              <span className="text-gray-400 font-satoshi text-[16px] md:text-[20px] font-bold select-none">✕</span>
+              <img
+                src="/32-Years-Group-Logo.png"
+                alt="St. Joseph's Group 32 Years"
+                className="h-10 md:h-12 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
                 decoding="async"
                 fetchPriority="high"
               />
