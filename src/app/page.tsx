@@ -237,15 +237,15 @@ export default function Home() {
                 className="hero__title hero-stagger hero-stagger--letters"
                 style={{ "--base-delay": "0.1s" } as React.CSSProperties}
               >
-                <span className="hero-stagger__item" style={{ "--index": 0 } as React.CSSProperties}>H</span>
-                <span className="hero-stagger__item" style={{ "--index": 1 } as React.CSSProperties}>R</span>
-                <span className="hero-stagger__item" style={{ "--index": 2 } as React.CSSProperties}>C</span>
-                <span className="hero-stagger__item" style={{ "--index": 3 } as React.CSSProperties}>C</span>
-                <span className="hero-stagger__item" style={{ "--index": 4 } as React.CSSProperties}>&nbsp;</span>
-                <span className="hero-stagger__item" style={{ "--index": 5 } as React.CSSProperties}>S</span>
-                <span className="hero-stagger__item" style={{ "--index": 6 } as React.CSSProperties}>J</span>
-                <span className="hero-stagger__item" style={{ "--index": 7 } as React.CSSProperties}>G</span>
-                <span className="hero-stagger__item" style={{ "--index": 8 } as React.CSSProperties}>I</span>
+                {"HackerRank Campus Crew - St. Joseph's".split("").map((char, idx) => (
+                  <span
+                    key={idx}
+                    className="hero-stagger__item"
+                    style={{ "--index": idx } as React.CSSProperties}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
               </h1>
               <p
                 className="hero__subtitle hero-stagger hero-stagger--words font-satoshi uppercase tracking-wider"
