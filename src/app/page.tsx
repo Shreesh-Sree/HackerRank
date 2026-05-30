@@ -226,7 +226,7 @@ export default function Home() {
               <img
                 src="/32-Years-Group-Logo.png"
                 alt="St. Joseph's Group 32 Years"
-                className="h-10 md:h-12 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+                className="h-16 md:h-22 w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
                 decoding="async"
                 fetchPriority="high"
               />
