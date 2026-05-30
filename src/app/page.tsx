@@ -557,7 +557,7 @@ export default function Home() {
         <section className="section border-t border-[#c1c2d6] bg-[#f8f9fa]" id="sandbox-heading" aria-labelledby="sandbox-heading">
           <div className="section__stack max-w-4xl mx-auto">
             <div className="text-center flex flex-col gap-2 mb-4">
-              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px]">[INTERACTIVE_SANDBOX]</span>
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px] font-departure">INTERACTIVE SANDBOX</span>
               <h2 className="section__title font-newsreader italic text-[42px]">Daily Sandbox Challenge</h2>
               <p className="text-[14px] text-gray-600 max-w-[600px] mx-auto mt-2">
                 Replicate the competitive programming experience inside this minimal, live compiler simulator! Try to compile the O(log n) solution below.
@@ -626,7 +626,7 @@ export default function Home() {
         <section className="section border-t border-[#c1c2d6]" id="complexity-heading" aria-labelledby="complexity-heading">
           <div className="section__stack max-w-4xl mx-auto">
             <div className="text-center flex flex-col gap-2 mb-4">
-              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px]">[COMPLEXITY_ARENA]</span>
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px] font-departure">COMPLEXITY ARENA</span>
               <h2 className="section__title font-newsreader italic text-[42px]">Complexity Arena</h2>
               <p className="text-[14px] text-gray-600 max-w-[600px] mx-auto mt-2">
                 An interactive reference cheat sheet of common data structure operations and their corresponding algorithmic time complexities.
@@ -730,7 +730,7 @@ export default function Home() {
         <section className="section border-t border-[#c1c2d6] bg-[#f8f9fa]" id="utilities-heading" aria-labelledby="utilities-heading">
           <div className="section__stack max-w-4xl mx-auto">
             <div className="text-center flex flex-col gap-2 mb-4">
-              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px]">[CREW_UTILITIES]</span>
+              <span className="text-gray-500 font-bold uppercase tracking-wider text-[11px] font-departure">CREW UTILITIES</span>
               <h2 className="section__title font-newsreader italic text-[42px]">Hacker Cheat Sheets</h2>
               <p className="text-[14px] text-gray-600 max-w-[600px] mx-auto mt-2">
                 Quick-reference developer templates curated by the SJGI crew leaders for competitive battles and software deployments.

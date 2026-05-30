@@ -32,11 +32,14 @@
   --color-surface: var(--color-surface);
 
   --color-violet: #1A0533;
-  --color-lime: #39FF14;
-  --color-cyan: #00FFFF;
+  --color-lime: #05C770; /* Official Hacker Green */
+  --color-cyan: #86F9F9; /* Official Terminal Cyan */
   --color-gold: #FFD700;
-  --color-void: #050505;
+  --color-void: #141419; /* Official Brand Black */
   --color-chalk: #F5F5F5;
+  --color-terrain: #003333; /* Official Terrain Teal */
+  --color-sky: #73D3FB; /* Official Sky Blue */
+  --color-celery: #DBFFC2; /* Official Celery Light Green */
 }
 
 /* CRT monitor scanlines overlay styling */
