@@ -33,6 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://departuremono.com" />
+        <link rel="stylesheet" href="https://departuremono.com/mono.css" />
+      </head>
       <body className="min-h-full flex flex-col bg-white text-[#121418] font-satoshi overflow-x-hidden">
         <Providers>
           {/* 1. Cloned Top Navigation */}

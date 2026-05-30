@@ -234,7 +234,7 @@ export default function Home() {
 
             <div className="hero__copy">
               <h1
-                className="hero__title hero-stagger hero-stagger--letters"
+                className="hero__title hero-stagger hero-stagger--letters font-departure not-italic text-[24px] sm:text-[36px] md:text-[48px] lg:text-[54px] xl:text-[60px] tracking-tighter"
                 style={{ "--base-delay": "0.1s" } as React.CSSProperties}
               >
                 {"HackerRank Campus Crew - St. Joseph's".split("").map((char, idx) => (
